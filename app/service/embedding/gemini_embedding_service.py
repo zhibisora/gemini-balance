@@ -63,7 +63,8 @@ class GeminiEmbeddingService:
         response = None
 
         try:
-            response = await self.api_client.embed_content(payload, model, api_key)
+            async with rate_limiter.limit(model):
+                response = await self.api_client.embed_content(payload, model, api_key)
             is_success = True
             status_code = 200
             return response
