@@ -75,7 +75,8 @@ class OpenAICompatiableService:
         status_code = None
         response = None
         try:
-            response = await self.api_client.generate_content(request, api_key)
+            async with rate_limiter.limit(model):
+                response = await self.api_client.generate_content(request, api_key)
             is_success = True
             status_code = 200
             return response
