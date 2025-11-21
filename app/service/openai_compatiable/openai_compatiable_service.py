@@ -123,12 +123,13 @@ class OpenAICompatiableService:
             current_attempt_key = api_key
             final_api_key = current_attempt_key
             try:
-                async for line in self.api_client.stream_generate_content(
-                    payload, current_attempt_key
-                ):
-                    if line.startswith("data:"):
-                        # print(line)
-                        yield line + "\n\n"
+                async with rate_limiter.limit(model):
+                    async for line in self.api_client.stream_generate_content(
+                        payload, current_attempt_key
+                    ):
+                        if line.startswith("data:"):
+                            # print(line)
+                            yield line + "\n\n"
                 logger.info("Streaming completed successfully")
                 is_success = True
                 status_code = 200
