@@ -52,7 +52,8 @@ class OpenAICompatiableService:
         # 移除值为null的
         request_dict = {k: v for k, v in request_dict.items() if v is not None}
         api_key = settings.PAID_KEY
-        return await self.api_client.generate_images(request_dict, api_key)
+        async with rate_limiter.limit(request.model):
+            return await self.api_client.generate_images(request_dict, api_key)
 
     async def create_embeddings(
         self,
@@ -61,7 +62,8 @@ class OpenAICompatiableService:
         api_key: str,
     ) -> Dict[str, Any]:
         """创建嵌入"""
-        return await self.api_client.create_embeddings(input_text, model, api_key)
+        async with rate_limiter.limit(model):
+            return await self.api_client.create_embeddings(input_text, model, api_key)
 
     async def _handle_normal_completion(
         self, model: str, request: dict, api_key: str
