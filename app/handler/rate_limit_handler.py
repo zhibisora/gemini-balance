@@ -1,5 +1,6 @@
 import asyncio
 import json
+import time
 from contextlib import asynccontextmanager
 from typing import Dict
 
@@ -10,7 +11,7 @@ logger = get_main_logger()
 
 
 class ModelRateLimiter:
-    """一个基于并发和延迟对不同模型进行速率限制的限制器。"""
+    """一个基于请求间隔对不同模型进行速率限制的限制器。"""
 
     def __init__(self):
         self._limiters: Dict[str, Dict] = {}
@@ -39,28 +40,23 @@ class ModelRateLimiter:
                     )
                     continue
 
-                concurrency = config.get("concurrency", 1)
-                delay = config.get("delay", 0)
+                interval = config.get("interval", 0)
 
-                if not isinstance(concurrency, int) or concurrency <= 0:
+                if not isinstance(interval, (int, float)) or interval < 0:
                     logger.warning(
-                        f"模型 '{model}' 的并发数无效: {concurrency}。必须是正整数。默认为1。"
+                        f"模型 '{model}' 的间隔无效: {interval}。必须是非负数。默认为0。"
                     )
-                    concurrency = 1
+                    interval = 0
 
-                if not isinstance(delay, (int, float)) or delay < 0:
-                    logger.warning(
-                        f"模型 '{model}' 的延迟无效: {delay}。必须是非负数。默认为0。"
+                if interval > 0:
+                    self._limiters[model] = {
+                        "lock": asyncio.Lock(),
+                        "interval": interval,
+                        "next_allowed_time": 0.0,
+                    }
+                    logger.info(
+                        f"为模型 '{model}' 启用速率限制: 最小间隔={interval}s"
                     )
-                    delay = 0
-
-                self._limiters[model] = {
-                    "semaphore": asyncio.Semaphore(concurrency),
-                    "delay": delay,
-                }
-                logger.info(
-                    f"为模型 '{model}' 启用速率限制: 并发数={concurrency}, 延迟={delay}s"
-                )
         except (json.JSONDecodeError, TypeError) as e:
             logger.warning(
                 f"无法解析 MODEL_RATE_LIMITS。错误: {e}。将不应用任何速率限制。"
@@ -76,20 +72,28 @@ class ModelRateLimiter:
             yield
             return
 
-        semaphore = limiter["semaphore"]
-        delay = limiter["delay"]
+        lock = limiter["lock"]
+        interval = limiter["interval"]
 
-        logger.debug(f"正在为模型 '{model_name}' 获取信号量...")
-        await semaphore.acquire()
-        logger.debug(f"已为模型 '{model_name}' 获取信号量。")
+        async with lock:
+            now = time.monotonic()
+            next_time = limiter.get("next_allowed_time", 0.0)
+
+            wait_for = next_time - now
+            if wait_for > 0:
+                logger.debug(
+                    f"速率限制模型 '{model_name}', 等待 {wait_for:.4f}s."
+                )
+                await asyncio.sleep(wait_for)
+
+            # 更新此模型的下一次允许时间
+            limiter["next_allowed_time"] = time.monotonic() + interval
+
         try:
             yield
         finally:
-            if delay > 0:
-                logger.debug(f"正在为模型 '{model_name}' 等待 {delay}s 延迟...")
-                await asyncio.sleep(delay)
-            semaphore.release()
-            logger.debug(f"已为模型 '{model_name}' 释放信号量。")
+            # 在这种模式下，退出时无需执行任何操作
+            pass
 
 
 # 速率限制器的单例实例
