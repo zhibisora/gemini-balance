@@ -9,6 +9,7 @@ from app.config.config import settings
 from app.core.constants import GEMINI_2_FLASH_EXP_SAFETY_SETTINGS
 from app.database.services import add_error_log, add_request_log
 from app.domain.gemini_models import GeminiRequest
+from app.handler.rate_limit_handler import rate_limiter
 from app.handler.response_handler import GeminiResponseHandler
 from app.handler.stream_optimizer import gemini_optimizer
 from app.log.logger import get_gemini_logger
