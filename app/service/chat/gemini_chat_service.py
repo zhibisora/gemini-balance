@@ -473,30 +473,31 @@ class GeminiChatService:
             current_attempt_key = api_key
             final_api_key = current_attempt_key
             try:
-                async for line in self.api_client.stream_generate_content(
-                    payload, model, current_attempt_key
-                ):
-                    # print(line)
-                    if line.startswith("data:"):
-                        line = line[6:]
-                        response_data = self.response_handler.handle_response(
-                            json.loads(line), model, stream=True
-                        )
-                        text = self._extract_text_from_response(response_data)
-                        # 如果有文本内容，且开启了流式输出优化器，则使用流式输出优化器处理
-                        if text and settings.STREAM_OPTIMIZER_ENABLED:
-                            # 使用流式输出优化器处理文本输出
-                            async for (
-                                optimized_chunk
-                            ) in gemini_optimizer.optimize_stream_output(
-                                text,
-                                lambda t: self._create_char_response(response_data, t),
-                                lambda c: "data: " + json.dumps(c) + "\n\n",
-                            ):
-                                yield optimized_chunk
-                        else:
-                            # 如果没有文本内容（如工具调用等），整块输出
-                            yield "data: " + json.dumps(response_data) + "\n\n"
+                async with rate_limiter.limit(model):
+                    async for line in self.api_client.stream_generate_content(
+                        payload, model, current_attempt_key
+                    ):
+                        # print(line)
+                        if line.startswith("data:"):
+                            line = line[6:]
+                            response_data = self.response_handler.handle_response(
+                                json.loads(line), model, stream=True
+                            )
+                            text = self._extract_text_from_response(response_data)
+                            # 如果有文本内容，且开启了流式输出优化器，则使用流式输出优化器处理
+                            if text and settings.STREAM_OPTIMIZER_ENABLED:
+                                # 使用流式输出优化器处理文本输出
+                                async for (
+                                    optimized_chunk
+                                ) in gemini_optimizer.optimize_stream_output(
+                                    text,
+                                    lambda t: self._create_char_response(response_data, t),
+                                    lambda c: "data: " + json.dumps(c) + "\n\n",
+                                ):
+                                    yield optimized_chunk
+                            else:
+                                # 如果没有文本内容（如工具调用等），整块输出
+                                yield "data: " + json.dumps(response_data) + "\n\n"
                 logger.info("Streaming completed successfully")
                 is_success = True
                 status_code = 200
