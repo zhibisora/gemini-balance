@@ -306,7 +306,10 @@ class OpenAIChatService:
         response = None
 
         try:
-            response = await self.api_client.generate_content(payload, model, api_key)
+            async with rate_limiter.limit(model):
+                response = await self.api_client.generate_content(
+                    payload, model, api_key
+                )
             usage_metadata = response.get("usageMetadata", {})
             is_success = True
             status_code = 200
