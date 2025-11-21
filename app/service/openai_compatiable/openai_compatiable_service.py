@@ -8,6 +8,7 @@ from app.database.services import (
     add_request_log,
 )
 from app.domain.openai_models import ChatRequest, ImageGenerationRequest
+from app.handler.rate_limit_handler import rate_limiter
 from app.log.logger import get_openai_compatible_logger
 from app.service.client.api_client import OpenaiApiClient
 from app.service.key.key_manager import KeyManager
