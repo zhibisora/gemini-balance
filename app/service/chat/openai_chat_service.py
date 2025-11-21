@@ -447,12 +447,13 @@ class OpenAIChatService:
         """处理真实流式 (real stream) 的核心逻辑"""
         tool_call_flag = False
         usage_metadata = None
-        async for line in self.api_client.stream_generate_content(
-            payload, model, api_key
-        ):
-            if line.startswith("data:"):
-                chunk_str = line[6:]
-                if not chunk_str or chunk_str.isspace():
+        async with rate_limiter.limit(model):
+            async for line in self.api_client.stream_generate_content(
+                payload, model, api_key
+            ):
+                if line.startswith("data:"):
+                    chunk_str = line[6:]
+                    if not chunk_str or chunk_str.isspace():
                     logger.debug(
                         f"Received empty data line for model {model}, skipping."
                     )
