@@ -15,6 +15,7 @@ from app.database.services import (
 )
 from app.domain.openai_models import ChatRequest, ImageGenerationRequest
 from app.handler.message_converter import OpenAIMessageConverter
+from app.handler.rate_limit_handler import rate_limiter
 from app.handler.response_handler import OpenAIResponseHandler
 from app.handler.stream_optimizer import openai_optimizer
 from app.log.logger import get_openai_logger
