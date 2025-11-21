@@ -391,29 +391,30 @@ class OpenAIChatService:
             f"Fake streaming enabled for model: {model}. Calling non-streaming endpoint."
         )
 
-        api_response_task = asyncio.create_task(
-            self.api_client.generate_content(payload, model, api_key)
-        )
+        async with rate_limiter.limit(model):
+            api_response_task = asyncio.create_task(
+                self.api_client.generate_content(payload, model, api_key)
+            )
 
-        i = 0
-        try:
-            while not api_response_task.done():
-                i = i + 1
-                """定期发送空数据以保持连接"""
-                if i >= settings.FAKE_STREAM_EMPTY_DATA_INTERVAL_SECONDS:
-                    i = 0
-                    empty_chunk = self.response_handler.handle_response(
-                        {},
-                        model,
-                        stream=True,
-                        finish_reason="stop",
-                        usage_metadata=None,
-                    )
-                    yield f"data: {json.dumps(empty_chunk)}\n\n"
-                    logger.debug("Sent empty data chunk for fake stream heartbeat.")
-                await asyncio.sleep(1)
-        finally:
-            response = await api_response_task
+            i = 0
+            try:
+                while not api_response_task.done():
+                    i = i + 1
+                    """定期发送空数据以保持连接"""
+                    if i >= settings.FAKE_STREAM_EMPTY_DATA_INTERVAL_SECONDS:
+                        i = 0
+                        empty_chunk = self.response_handler.handle_response(
+                            {},
+                            model,
+                            stream=True,
+                            finish_reason="stop",
+                            usage_metadata=None,
+                        )
+                        yield f"data: {json.dumps(empty_chunk)}\n\n"
+                        logger.debug("Sent empty data chunk for fake stream heartbeat.")
+                    await asyncio.sleep(1)
+            finally:
+                response = await api_response_task
 
         if response and response.get("candidates"):
             response = self.response_handler.handle_response(
