@@ -2,7 +2,7 @@ volumes:
   mysql_data:
 services:
   gemini-balance:
-    image: ghcr.io/snailyp/gemini-balance:latest
+    image: gemini-balance:latest
     container_name: gemini-balance
     restart: unless-stopped
     ports:
