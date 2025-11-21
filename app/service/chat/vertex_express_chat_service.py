@@ -272,7 +272,10 @@ class GeminiChatService:
         response = None
 
         try:
-            response = await self.api_client.generate_content(payload, model, api_key)
+            async with rate_limiter.limit(model):
+                response = await self.api_client.generate_content(
+                    payload, model, api_key
+                )
             is_success = True
             status_code = 200
             return self.response_handler.handle_response(response, model, stream=False)
