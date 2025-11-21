@@ -2,6 +2,7 @@ volumes:
   mysql_data:
 services:
   gemini-balance:
+    build: .
     image: gemini-balance:latest
     container_name: gemini-balance
     restart: unless-stopped
