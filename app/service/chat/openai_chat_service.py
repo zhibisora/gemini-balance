@@ -454,9 +454,9 @@ class OpenAIChatService:
                 if line.startswith("data:"):
                     chunk_str = line[6:]
                     if not chunk_str or chunk_str.isspace():
-                    logger.debug(
-                        f"Received empty data line for model {model}, skipping."
-                    )
+                        logger.debug(
+                            f"Received empty data line for model {model}, skipping."
+                        )
                     continue
                 try:
                     chunk = json.loads(chunk_str)
