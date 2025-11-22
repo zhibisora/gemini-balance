@@ -490,9 +490,9 @@ class GeminiChatService:
         max_retries = settings.MAX_RETRIES
         payload = _build_payload(model, request)
 
-        # TPM速率限制检查（在重试循环之外）
+        # TPM速率限制：预留
         estimated_tokens = estimate_payload_tokens(payload)
-        await rate_limiter.check_and_update(model, estimated_tokens)
+        await rate_limiter.reserve_tokens(model, estimated_tokens)
 
         is_success = False
         status_code = None
