@@ -35,7 +35,10 @@ from app.log.logger import get_openai_logger
 from app.service.client.api_client import GeminiApiClient
 from app.service.image.image_create_service import ImageCreateService
 from app.service.key.key_manager import KeyManager
-from app.utils.helpers import estimate_payload_tokens
+from app.utils.helpers import (
+    estimate_payload_tokens,
+    get_actual_tokens_from_response,
+)
 
 logger = get_openai_logger()
 
