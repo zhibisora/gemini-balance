@@ -367,24 +367,25 @@ class GeminiChatService:
 
         payload = _build_payload(model, request)
 
-        # TPM速率限制检查（在重试循环之外）
+        # TPM速率限制：预留
         estimated_tokens = estimate_payload_tokens(payload)
-        await rate_limiter.check_and_update(model, estimated_tokens)
+        await rate_limiter.reserve_tokens(model, estimated_tokens)
 
         start_time = time.perf_counter()
         request_datetime = datetime.datetime.now()
         is_success = False
         status_code = None
         response = None
+        actual_tokens = 0
+        processed_response = None
 
         try:
-            async with rate_limiter.limit(model):
-                response = await self.api_client.generate_content(
-                    payload, model, api_key
-                )
+            response = await self.api_client.generate_content(payload, model, api_key)
             is_success = True
             status_code = 200
-            return self.response_handler.handle_response(response, model, stream=False)
+            processed_response = self.response_handler.handle_response(
+                response, model, stream=False
+            )
         except Exception as e:
             is_success = False
             status_code = e.args[0]
@@ -402,6 +403,12 @@ class GeminiChatService:
             )
             raise e
         finally:
+            if response:
+                actual_tokens = get_actual_tokens_from_response(response)
+            await rate_limiter.adjust_token_count(
+                model, estimated_tokens, actual_tokens
+            )
+
             end_time = time.perf_counter()
             latency_ms = int((end_time - start_time) * 1000)
             await add_request_log(
@@ -412,6 +419,7 @@ class GeminiChatService:
                 latency_ms=latency_ms,
                 request_time=request_datetime,
             )
+        return processed_response
 
     async def count_tokens(
         self, model: str, request: GeminiRequest, api_key: str
