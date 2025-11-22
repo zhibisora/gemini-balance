@@ -389,56 +389,58 @@ class OpenAIChatService:
         logger.info(
             f"Fake streaming enabled for model: {model}. Calling non-streaming endpoint."
         )
+        estimated_tokens = estimate_payload_tokens(payload)
+        actual_tokens = 0
+        response = None
 
-        async with rate_limiter.limit(model):
+        try:
             api_response_task = asyncio.create_task(
                 self.api_client.generate_content(payload, model, api_key)
             )
-
             i = 0
-            try:
-                while not api_response_task.done():
-                    i = i + 1
-                    """定期发送空数据以保持连接"""
-                    if i >= settings.FAKE_STREAM_EMPTY_DATA_INTERVAL_SECONDS:
-                        i = 0
-                        empty_chunk = self.response_handler.handle_response(
-                            {},
-                            model,
-                            stream=True,
-                            finish_reason="stop",
-                            usage_metadata=None,
-                        )
-                        yield f"data: {json.dumps(empty_chunk)}\n\n"
-                        logger.debug("Sent empty data chunk for fake stream heartbeat.")
-                    await asyncio.sleep(1)
-            finally:
-                response = await api_response_task
+            while not api_response_task.done():
+                i += 1
+                if i >= settings.FAKE_STREAM_EMPTY_DATA_INTERVAL_SECONDS:
+                    i = 0
+                    empty_chunk = self.response_handler.handle_response(
+                        {}, model, stream=True, finish_reason="stop", usage_metadata=None
+                    )
+                    yield f"data: {json.dumps(empty_chunk)}\n\n"
+                    logger.debug("Sent empty data chunk for fake stream heartbeat.")
+                await asyncio.sleep(1)
 
-        if response and response.get("candidates"):
-            response = self.response_handler.handle_response(
-                response,
-                model,
-                stream=True,
-                finish_reason="stop",
-                usage_metadata=response.get("usageMetadata", {}),
-            )
-            yield f"data: {json.dumps(response)}\n\n"
-            logger.info(f"Sent full response content for fake stream: {model}")
-        else:
-            error_message = "Failed to get response from model"
-            if response and isinstance(response, dict) and response.get("error"):
-                error_details = response.get("error")
-                if isinstance(error_details, dict):
-                    error_message = error_details.get("message", error_message)
+            response = await api_response_task
 
-            logger.error(
-                f"No candidates or error in response for fake stream model {model}: {response}"
+            if response and response.get("candidates"):
+                processed_response = self.response_handler.handle_response(
+                    response,
+                    model,
+                    stream=True,
+                    finish_reason="stop",
+                    usage_metadata=response.get("usageMetadata", {}),
+                )
+                yield f"data: {json.dumps(processed_response)}\n\n"
+                logger.info(f"Sent full response content for fake stream: {model}")
+            else:
+                error_message = "Failed to get response from model"
+                if response and isinstance(response, dict) and response.get("error"):
+                    error_details = response.get("error")
+                    if isinstance(error_details, dict):
+                        error_message = error_details.get("message", error_message)
+                logger.error(
+                    f"No candidates or error in response for fake stream model {model}: {response}"
+                )
+                error_chunk = self.response_handler.handle_response(
+                    {}, model, stream=True, finish_reason="stop", usage_metadata=None
+                )
+                yield f"data: {json.dumps(error_chunk)}\n\n"
+
+        finally:
+            if response:
+                actual_tokens = get_actual_tokens_from_response(response)
+            await rate_limiter.adjust_token_count(
+                model, estimated_tokens, actual_tokens
             )
-            error_chunk = self.response_handler.handle_response(
-                {}, model, stream=True, finish_reason="stop", usage_metadata=None
-            )
-            yield f"data: {json.dumps(error_chunk)}\n\n"
 
     async def _real_stream_logic_impl(
         self, model: str, payload: Dict[str, Any], api_key: str
