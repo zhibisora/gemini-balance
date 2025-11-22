@@ -113,6 +113,11 @@ class GeminiEmbeddingService:
     ) -> Dict[str, Any]:
         """生成批量嵌入内容"""
         payload = _build_batch_embed_payload(request, model)
+
+        # TPM速率限制检查
+        estimated_tokens = estimate_payload_tokens(payload)
+        await rate_limiter.check_and_update(model, estimated_tokens)
+
         start_time = time.perf_counter()
         request_datetime = datetime.datetime.now()
         is_success = False
