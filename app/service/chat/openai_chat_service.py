@@ -308,9 +308,9 @@ class OpenAIChatService:
 
         payload = _build_payload(request, messages, instruction)
 
-        # TPM速率限制检查
+        # TPM速率限制：预留
         estimated_tokens = estimate_payload_tokens(payload)
-        await rate_limiter.check_and_update(request.model, estimated_tokens)
+        await rate_limiter.reserve_tokens(request.model, estimated_tokens)
 
         if request.stream:
             return self._handle_stream_completion(request.model, payload, api_key)
