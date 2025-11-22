@@ -325,59 +325,33 @@ class OpenAIChatService:
         is_success = False
         status_code = None
         response = None
+        actual_tokens = 0
+        result = None
+        # 预估的token数在调用此函数之前就已经在 reserve_tokens 中使用了
+        # 我们需要在这里获取它以便在 finally 中使用
+        estimated_tokens = estimate_payload_tokens(payload)
 
         try:
-            async with rate_limiter.limit(model):
-                response = await self.api_client.generate_content(
-                    payload, model, api_key
-                )
+            response = await self.api_client.generate_content(payload, model, api_key)
             usage_metadata = response.get("usageMetadata", {})
             is_success = True
             status_code = 200
 
-            # 尝试处理响应，捕获可能的响应处理异常
-            try:
-                result = self.response_handler.handle_response(
-                    response,
-                    model,
-                    stream=False,
-                    finish_reason="stop",
-                    usage_metadata=usage_metadata,
-                )
-                return result
-            except Exception as response_error:
-                logger.error(
-                    f"Response processing failed for model {model}: {str(response_error)}"
-                )
-
-                # 记录详细的错误信息
-                if "parts" in str(response_error):
-                    logger.error("Response structure issue - missing or invalid parts")
-                    if response.get("candidates"):
-                        candidate = response["candidates"][0]
-                        content = candidate.get("content", {})
-                        logger.error(f"Content structure: {content}")
-
-                # 重新抛出异常
-                raise response_error
-
+            result = self.response_handler.handle_response(
+                response,
+                model,
+                stream=False,
+                finish_reason="stop",
+                usage_metadata=usage_metadata,
+            )
         except Exception as e:
             is_success = False
-            status_code = e.args[0]
-            error_log_msg = e.args[1]
+            if hasattr(e, "args") and len(e.args) >= 2:
+                status_code, error_log_msg = e.args[0], e.args[1]
+            else:
+                status_code, error_log_msg = 500, str(e)
+
             logger.error(f"API call failed for model {model}: {error_log_msg}")
-
-            # 特别记录 max_tokens 相关的错误
-            gen_config = payload.get("generationConfig", {})
-            if "maxOutputTokens" in gen_config:
-                logger.error(
-                    f"Request had maxOutputTokens: {gen_config['maxOutputTokens']}"
-                )
-
-            # 如果是响应处理错误，记录更多信息
-            if "parts" in error_log_msg:
-                logger.error("This is likely a response processing error")
-
             await add_error_log(
                 gemini_key=api_key,
                 model_name=model,
@@ -387,14 +361,16 @@ class OpenAIChatService:
                 request_msg=payload if settings.ERROR_LOG_RECORD_REQUEST_BODY else None,
                 request_datetime=request_datetime,
             )
-            raise e
+            raise
         finally:
-            end_time = time.perf_counter()
-            latency_ms = int((end_time - start_time) * 1000)
-            logger.info(
-                f"Normal completion finished - Success: {is_success}, Latency: {latency_ms}ms"
+            if response:
+                actual_tokens = get_actual_tokens_from_response(response)
+            await rate_limiter.adjust_token_count(
+                model, estimated_tokens, actual_tokens
             )
 
+            end_time = time.perf_counter()
+            latency_ms = int((end_time - start_time) * 1000)
             await add_request_log(
                 model_name=model,
                 api_key=api_key,
@@ -403,6 +379,8 @@ class OpenAIChatService:
                 latency_ms=latency_ms,
                 request_time=request_datetime,
             )
+
+        return result
 
     async def _fake_stream_logic_impl(
         self, model: str, payload: Dict[str, Any], api_key: str
