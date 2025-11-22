@@ -76,6 +76,14 @@ class ServiceUnavailableError(APIError):
         )
 
 
+class RateLimitExceededError(Exception):
+    """当TPM速率限制被触发时抛出此异常。"""
+
+    def __init__(self, message: str):
+        self.message = message
+        super().__init__(self.message)
+
+
 def setup_exception_handlers(app: FastAPI) -> None:
     """
     设置应用程序的异常处理器
