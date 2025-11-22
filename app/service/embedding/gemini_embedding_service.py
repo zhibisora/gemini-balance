@@ -17,7 +17,10 @@ from app.handler.rate_limit_handler import rate_limiter
 from app.log.logger import get_gemini_embedding_logger
 from app.service.client.api_client import GeminiApiClient
 from app.service.key.key_manager import KeyManager
-from app.utils.helpers import estimate_payload_tokens
+from app.utils.helpers import (
+    estimate_payload_tokens,
+    get_actual_tokens_from_response,
+)
 
 logger = get_gemini_embedding_logger()
 
