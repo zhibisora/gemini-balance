@@ -92,6 +92,22 @@ def setup_exception_handlers(app: FastAPI) -> None:
         app: FastAPI应用程序实例
     """
 
+    @app.exception_handler(RateLimitExceededError)
+    async def rate_limit_exceeded_handler(
+        request: Request, exc: RateLimitExceededError
+    ):
+        """处理速率限制超出错误"""
+        logger.warning(f"Rate limit exceeded: {exc.message}")
+        return JSONResponse(
+            status_code=429,
+            content={
+                "error": {
+                    "code": "rate_limit_exceeded",
+                    "message": exc.message,
+                }
+            },
+        )
+
     @app.exception_handler(APIError)
     async def api_error_handler(request: Request, exc: APIError):
         """处理API错误"""
