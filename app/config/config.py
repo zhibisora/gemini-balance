@@ -91,9 +91,9 @@ class Settings(BaseSettings):
     THINKING_MODELS: List[str] = []
     THINKING_BUDGET_MAP: Dict[str, float] = {}
 
-    # 模型速率限制配置 (JSON string)
-    # e.g., '{"gemini-1.5-pro-latest": {"concurrency": 1, "delay": 2}}'
-    MODEL_RATE_LIMITS: str = "{}"
+    # 模型TPM（每分钟Token数）限制配置 (JSON string)
+    # e.g., '{"gemini-2.5-pro": 60000}'
+    MODEL_TPM_LIMITS: str = "{}"
 
     # TTS相关配置
     TTS_MODEL: str = "gemini-2.5-flash-preview-tts"
