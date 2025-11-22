@@ -446,57 +446,67 @@ class OpenAIChatService:
         self, model: str, payload: Dict[str, Any], api_key: str
     ) -> AsyncGenerator[str, None]:
         """处理真实流式 (real stream) 的核心逻辑"""
-        tool_call_flag = False
-        usage_metadata = None
-        async with rate_limiter.limit(model):
+        estimated_tokens = estimate_payload_tokens(payload)
+        actual_tokens = 0
+        last_chunk_with_usage = None
+
+        try:
+            tool_call_flag = False
+            usage_metadata = None
             async for line in self.api_client.stream_generate_content(
                 payload, model, api_key
             ):
                 if line.startswith("data:"):
                     chunk_str = line[6:]
-                    if not chunk_str or chunk_str.isspace():
-                        logger.debug(
-                            f"Received empty data line for model {model}, skipping."
+                    if not chunk_str.strip():
+                        continue
+                    try:
+                        chunk = json.loads(chunk_str)
+                        if chunk.get("usageMetadata"):
+                            last_chunk_with_usage = chunk
+                        usage_metadata = chunk.get("usageMetadata", {})
+                    except json.JSONDecodeError:
+                        logger.error(
+                            f"Failed to decode JSON from stream for model {model}: {chunk_str}"
                         )
-                    continue
-                try:
-                    chunk = json.loads(chunk_str)
-                    usage_metadata = chunk.get("usageMetadata", {})
-                except json.JSONDecodeError:
-                    logger.error(
-                        f"Failed to decode JSON from stream for model {model}: {chunk_str}"
+                        continue
+
+                    openai_chunk = self.response_handler.handle_response(
+                        chunk,
+                        model,
+                        stream=True,
+                        finish_reason=None,
+                        usage_metadata=usage_metadata,
                     )
-                    continue
-                openai_chunk = self.response_handler.handle_response(
-                    chunk,
-                    model,
-                    stream=True,
-                    finish_reason=None,
-                    usage_metadata=usage_metadata,
-                )
-                if openai_chunk:
-                    text = self._extract_text_from_openai_chunk(openai_chunk)
-                    if text and settings.STREAM_OPTIMIZER_ENABLED:
-                        async for (
-                            optimized_chunk_data
-                        ) in openai_optimizer.optimize_stream_output(
-                            text,
-                            lambda t: self._create_char_openai_chunk(openai_chunk, t),
-                            lambda c: f"data: {json.dumps(c)}\n\n",
-                        ):
-                            yield optimized_chunk_data
-                    else:
-                        if openai_chunk.get("choices") and openai_chunk["choices"][
-                            0
-                        ].get("delta", {}).get("tool_calls"):
-                            tool_call_flag = True
+                    if openai_chunk:
+                        text = self._extract_text_from_openai_chunk(openai_chunk)
+                        if text and settings.STREAM_OPTIMIZER_ENABLED:
+                            async for (
+                                optimized_chunk
+                            ) in openai_optimizer.optimize_stream_output(
+                                text,
+                                lambda t: self._create_char_openai_chunk(
+                                    openai_chunk, t
+                                ),
+                                lambda c: f"data: {json.dumps(c)}\n\n",
+                            ):
+                                yield optimized_chunk
+                        else:
+                            if openai_chunk.get("choices") and openai_chunk[
+                                "choices"
+                            ][0].get("delta", {}).get("tool_calls"):
+                                tool_call_flag = True
+                            yield f"data: {json.dumps(openai_chunk)}\n\n"
 
-                        yield f"data: {json.dumps(openai_chunk)}\n\n"
+            final_reason = "tool_calls" if tool_call_flag else "stop"
+            yield f"data: {json.dumps(self.response_handler.handle_response({}, model, stream=True, finish_reason=final_reason, usage_metadata=usage_metadata))}\n\n"
 
-        if tool_call_flag:
-            yield f"data: {json.dumps(self.response_handler.handle_response({}, model, stream=True, finish_reason='tool_calls', usage_metadata=usage_metadata))}\n\n"
-        else:
-            yield f"data: {json.dumps(self.response_handler.handle_response({}, model, stream=True, finish_reason='stop', usage_metadata=usage_metadata))}\n\n"
+        finally:
+            if last_chunk_with_usage:
+                actual_tokens = get_actual_tokens_from_response(last_chunk_with_usage)
+            await rate_limiter.adjust_token_count(
+                model, estimated_tokens, actual_tokens
+            )
 
     async def _handle_stream_completion(
         self, model: str, payload: Dict[str, Any], api_key: str
