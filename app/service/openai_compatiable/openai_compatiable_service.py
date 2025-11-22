@@ -7,12 +7,21 @@ from app.database.services import (
     add_error_log,
     add_request_log,
 )
+import datetime
+import time
+from typing import Any, AsyncGenerator, Dict, Union
+
+from app.config.config import settings
+from app.database.services import (
+    add_error_log,
+    add_request_log,
+)
 from app.domain.openai_models import ChatRequest, ImageGenerationRequest
 from app.handler.rate_limit_handler import rate_limiter
 from app.log.logger import get_openai_compatible_logger
 from app.service.client.api_client import OpenaiApiClient
 from app.service.key.key_manager import KeyManager
-from app.utils.helpers import redact_key_for_logging
+from app.utils.helpers import estimate_payload_tokens, redact_key_for_logging
 
 logger = get_openai_compatible_logger()
 
