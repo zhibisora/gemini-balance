@@ -362,6 +362,11 @@ class GeminiChatService:
                 )
 
         payload = _build_payload(model, request)
+
+        # TPM速率限制检查（在重试循环之外）
+        estimated_tokens = estimate_payload_tokens(payload)
+        await rate_limiter.check_and_update(model, estimated_tokens)
+
         start_time = time.perf_counter()
         request_datetime = datetime.datetime.now()
         is_success = False
