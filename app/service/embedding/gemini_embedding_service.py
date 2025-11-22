@@ -121,30 +121,27 @@ class GeminiEmbeddingService:
         """生成批量嵌入内容"""
         payload = _build_batch_embed_payload(request, model)
 
-        # TPM速率限制检查
         estimated_tokens = estimate_payload_tokens(payload)
-        await rate_limiter.check_and_update(model, estimated_tokens)
+        await rate_limiter.reserve_tokens(model, estimated_tokens)
 
         start_time = time.perf_counter()
         request_datetime = datetime.datetime.now()
         is_success = False
         status_code = None
         response = None
+        actual_tokens = 0
 
         try:
-            async with rate_limiter.limit(model):
-                response = await self.api_client.batch_embed_contents(
-                    payload, model, api_key
-                )
+            response = await self.api_client.batch_embed_contents(
+                payload, model, api_key
+            )
             is_success = True
             status_code = 200
-            return response
         except Exception as e:
             is_success = False
             status_code = e.args[0]
             error_log_msg = e.args[1]
             logger.error(f"Batch embedding API call failed: {error_log_msg}")
-
             await add_error_log(
                 gemini_key=api_key,
                 model_name=model,
@@ -156,6 +153,12 @@ class GeminiEmbeddingService:
             )
             raise e
         finally:
+            if response:
+                actual_tokens = get_actual_tokens_from_response(response)
+            await rate_limiter.adjust_token_count(
+                model, estimated_tokens, actual_tokens
+            )
+
             end_time = time.perf_counter()
             latency_ms = int((end_time - start_time) * 1000)
             await add_request_log(
@@ -166,3 +169,4 @@ class GeminiEmbeddingService:
                 latency_ms=latency_ms,
                 request_time=request_datetime,
             )
+        return response
