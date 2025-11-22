@@ -284,3 +284,21 @@ def estimate_payload_tokens(payload: Dict[str, Any]) -> int:
     # 这对于英文文本来说是一个常见的粗略估计
     estimated_tokens = total_chars // 4
     return max(estimated_tokens, 1)  # 确保至少返回1
+
+
+def get_actual_tokens_from_response(response: Dict[str, Any]) -> int:
+    """从API响应中安全地提取实际的总token数。"""
+    if not isinstance(response, dict):
+        return 0
+
+    # 检查 OpenAI 兼容格式
+    usage = response.get("usage")
+    if isinstance(usage, dict) and "total_tokens" in usage:
+        return usage.get("total_tokens", 0)
+
+    # 检查 Gemini API 格式
+    usage_metadata = response.get("usageMetadata")
+    if isinstance(usage_metadata, dict) and "totalTokenCount" in usage_metadata:
+        return usage_metadata.get("totalTokenCount", 0)
+
+    return 0
