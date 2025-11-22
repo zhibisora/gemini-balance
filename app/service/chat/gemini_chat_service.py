@@ -25,7 +25,11 @@ from app.handler.stream_optimizer import gemini_optimizer
 from app.log.logger import get_gemini_logger
 from app.service.client.api_client import GeminiApiClient
 from app.service.key.key_manager import KeyManager
-from app.utils.helpers import estimate_payload_tokens, redact_key_for_logging
+from app.utils.helpers import (
+    estimate_payload_tokens,
+    get_actual_tokens_from_response,
+    redact_key_for_logging,
+)
 
 logger = get_gemini_logger()
 
