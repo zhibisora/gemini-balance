@@ -327,6 +327,11 @@ class GeminiChatService:
         retries = 0
         max_retries = settings.MAX_RETRIES
         payload = _build_payload(model, request)
+
+        # TPM速率限制检查
+        estimated_tokens = estimate_payload_tokens(payload)
+        await rate_limiter.check_and_update(model, estimated_tokens)
+
         is_success = False
         status_code = None
         final_api_key = api_key
