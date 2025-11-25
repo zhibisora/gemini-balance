@@ -539,18 +539,26 @@ class OpenAIChatService:
 
             final_reason = "tool_calls" if tool_call_flag else "stop"
             yield f"data: {json.dumps(self.response_handler.handle_response({}, model, stream=True, finish_reason=final_reason, usage_metadata=usage_metadata))}\n\n"
+            is_success = True
 
         finally:
             if last_chunk_with_usage:
                 actual_tokens = get_actual_tokens_from_response(last_chunk_with_usage)
+            # 调整全局TPM计数
             await rate_limiter.adjust_token_count(
                 model, estimated_tokens, actual_tokens
             )
+            # 如果调用成功，则根据实际token用量校正单个密钥的TPM计数
+            if is_success:
+                await key_rate_limiter.update_token_usage(
+                    model, api_key, estimated_tokens, actual_tokens
+                )
 
     async def _handle_stream_completion(
         self, model: str, payload: Dict[str, Any], api_key: str
     ) -> AsyncGenerator[str, None]:
-        """处理流式聊天完成，添加重试逻辑和假流式支持"""
+        """处理流式聊天完成，添加速率限制、重试逻辑和假流式支持"""
+        estimated_tokens = estimate_payload_tokens(payload)
         retries = 0
         max_retries = settings.MAX_RETRIES
         is_success = False
