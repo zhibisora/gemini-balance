@@ -661,7 +661,7 @@ class OpenAIChatService:
                     if new_api_key and new_api_key != current_attempt_key:
                         final_api_key = new_api_key
                         logger.info(
-                            f"Switched to new API key for next attempt: {final_api_key}"
+                            f"Switched to new API key for next attempt: ...{final_api_key[-4:]}"
                         )
                     elif not new_api_key:
                         logger.error(
