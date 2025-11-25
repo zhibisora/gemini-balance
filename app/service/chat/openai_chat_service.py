@@ -487,6 +487,7 @@ class OpenAIChatService:
         estimated_tokens = estimate_payload_tokens(payload)
         actual_tokens = 0
         last_chunk_with_usage = None
+        is_success = False
 
         try:
             tool_call_flag = False
