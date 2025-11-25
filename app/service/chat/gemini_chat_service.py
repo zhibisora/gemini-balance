@@ -397,7 +397,256 @@ class GeminiChatService:
                 api_key = await self.key_manager.get_next_working_key()
                 continue
         else:  # for-else 循环，如果没有 break 则执行
-            raise HTTPException(
+            # 如果循环完成（意味着所有密钥都已尝试过且均被限速），则抛出429错误
+            raise RateLimitExceededError(
+                "All API keys are currently rate-limited for this model. Please try again later."
+            )
+
+        # 全局TPM速率限制：预留
+        await rate_limiter.reserve_tokens(model, estimated_tokens)
+
+        start_time = time.perf_counter()
+        request_datetime = datetime.datetime.now()
+        is_success = False
+        status_code = None
+        response = None
+        actual_tokens = 0
+        processed_response = None
+
+        try:
+            response = await self.api_client.generate_content(payload, model, api_key)
+            is_success = True
+            status_code = 200
+            processed_response = self.response_handler.handle_response(
+                response, model, stream=False
+            )
+        except Exception as e:
+            # API调用失败，释放该密钥的预留资源
+            await key_rate_limiter.release(model, api_key, estimated_tokens)
+            is_success = False
+            status_code = e.args[0]
+            error_log_msg = e.args[1]
+            logger.error(f"Normal API call failed with error: {error_log_msg}")
+
+            await add_error_log(
+                gemini_key=api_key,
+                model_name=model,
+                error_type="gemini-chat-non-stream",
+                error_log=error_log_msg,
+                error_code=status_code,
+                request_msg=payload if settings.ERROR_LOG_RECORD_REQUEST_BODY else None,
+                request_datetime=request_datetime,
+            )
+            raise e
+        finally:
+            if response:
+                actual_tokens = get_actual_tokens_from_response(response)
+
+            # 调整全局TPM计数
+            await rate_limiter.adjust_token_count(
+                model, estimated_tokens, actual_tokens
+            )
+
+            # 如果调用成功，则根据实际token用量校正单个密钥的TPM计数
+            if is_success:
+                await key_rate_limiter.update_token_usage(
+                    model, api_key, estimated_tokens, actual_tokens
+                )
+
+            end_time = time.perf_counter()
+            latency_ms = int((end_time - start_time) * 1000)
+            await add_request_log(
+                model_name=model,
+                api_key=api_key,
+                is_success=is_success,
+                status_code=status_code,
+                latency_ms=latency_ms,
+                request_time=request_datetime,
+            )
+        return processed_response
+
+    async def count_tokens(
+        self, model: str, request: GeminiRequest, api_key: str
+    ) -> Dict[str, Any]:
+        """计算token数量"""
+        # countTokens API只需要contents
+        payload = {
+            "contents": _filter_empty_parts(request.model_dump().get("contents", []))
+        }
+        start_time = time.perf_counter()
+        request_datetime = datetime.datetime.now()
+        is_success = False
+        status_code = None
+        response = None
+
+        try:
+            response = await self.api_client.count_tokens(payload, model, api_key)
+            is_success = True
+            status_code = 200
+            return response
+        except Exception as e:
+            is_success = False
+            status_code = e.args[0]
+            error_log_msg = e.args[1]
+            logger.error(f"Count tokens API call failed with error: {error_log_msg}")
+
+            await add_error_log(
+                gemini_key=api_key,
+                model_name=model,
+                error_type="gemini-count-tokens",
+                error_log=error_log_msg,
+                error_code=status_code,
+                request_msg=payload if settings.ERROR_LOG_RECORD_REQUEST_BODY else None,
+            )
+            raise e
+        finally:
+            end_time = time.perf_counter()
+            latency_ms = int((end_time - start_time) * 1000)
+            await add_request_log(
+                model_name=model,
+                api_key=api_key,
+                is_success=is_success,
+                status_code=status_code,
+                latency_ms=latency_ms,
+                request_time=request_datetime,
+            )
+
+    async def stream_generate_content(
+        self, model: str, request: GeminiRequest, api_key: str
+    ) -> AsyncGenerator[str, None]:
+        """流式生成内容"""
+        # 檢查並獲取文件專用的 API key（如果有文件）
+        file_names = _extract_file_references(request.model_dump().get("contents", []))
+        if file_names:
+            logger.info(f"Request contains file references: {file_names}")
+            file_api_key = await get_file_api_key(file_names[0])
+            if file_api_key:
+                logger.info(
+                    f"Found API key for file {file_names[0]}: {redact_key_for_logging(file_api_key)}"
+                )
+                api_key = file_api_key  # 使用文件的 API key
+            else:
+                logger.warning(
+                    f"No API key found for file {file_names[0]}, using default key: {redact_key_for_logging(api_key)}"
+                )
+
+        payload = _build_payload(model, request)
+        estimated_tokens = estimate_payload_tokens(payload)
+
+        # --- 寻找一个未被速率限制的可用密钥 ---
+        number_of_keys = len(self.key_manager.api_keys)
+        if number_of_keys == 0:
+            raise HTTPException(status_code=500, detail="No API keys configured.")
+
+        tried_keys = set()
+        initial_api_key = api_key
+        for _ in range(number_of_keys):
+            if api_key in tried_keys and api_key != initial_api_key:
+                api_key = await self.key_manager.get_next_working_key()
+                continue
+            tried_keys.add(api_key)
+
+            try:
+                await key_rate_limiter.check_and_reserve(
+                    model, api_key, estimated_tokens
+                )
+                logger.debug(
+                    f"Key ...{api_key[-4:]} passed rate limit check for model {model}."
+                )
+                break
+            except RateLimitExceededError as e:
+                logger.warning(
+                    f"Key ...{api_key[-4:]} is rate-limited for model {model}: {e}. Trying next key."
+                )
+                api_key = await self.key_manager.get_next_working_key()
+                continue
+        else:
+            raise RateLimitExceededError(
+                "All API keys are currently rate-limited for this model. Please try again later."
+            )
+
+        await rate_limiter.reserve_tokens(model, estimated_tokens)
+
+        actual_tokens = 0
+        last_chunk_with_usage = None
+        is_success = False
+        status_code = None
+        start_time = time.perf_counter()
+        request_datetime = datetime.datetime.now()
+
+        try:
+            async for line in self.api_client.stream_generate_content(
+                payload, model, api_key
+            ):
+                if line.startswith("data:"):
+                    line_data = line[6:]
+                    if line_data.strip():
+                        chunk_json = json.loads(line_data)
+                        if chunk_json.get("usageMetadata"):
+                            last_chunk_with_usage = chunk_json
+
+                        response_data = self.response_handler.handle_response(
+                            chunk_json, model, stream=True
+                        )
+                        text = self._extract_text_from_response(response_data)
+
+                        if text and settings.STREAM_OPTIMIZER_ENABLED:
+                            async for (
+                                optimized_chunk
+                            ) in gemini_optimizer.optimize_stream_output(
+                                text,
+                                lambda t: self._create_char_response(
+                                    response_data, t
+                                ),
+                                lambda c: "data: " + json.dumps(c) + "\n\n",
+                            ):
+                                yield optimized_chunk
+                        else:
+                            yield "data: " + json.dumps(response_data) + "\n\n"
+            is_success = True
+            status_code = 200
+        except Exception as e:
+            await key_rate_limiter.release(model, api_key, estimated_tokens)
+            is_success = False
+            status_code = e.args[0]
+            error_log_msg = e.args[1]
+            logger.error(f"Streaming API call failed: {error_log_msg}")
+
+            await add_error_log(
+                gemini_key=api_key,
+                model_name=model,
+                error_type="gemini-chat-stream",
+                error_log=error_log_msg,
+                error_code=status_code,
+                request_msg=(
+                    payload if settings.ERROR_LOG_RECORD_REQUEST_BODY else None
+                ),
+                request_datetime=request_datetime,
+            )
+            raise e
+        finally:
+            if last_chunk_with_usage:
+                actual_tokens = get_actual_tokens_from_response(last_chunk_with_usage)
+
+            await rate_limiter.adjust_token_count(
+                model, estimated_tokens, actual_tokens
+            )
+
+            if is_success:
+                await key_rate_limiter.update_token_usage(
+                    model, api_key, estimated_tokens, actual_tokens
+                )
+
+            end_time = time.perf_counter()
+            latency_ms = int((end_time - start_time) * 1000)
+            await add_request_log(
+                model_name=model,
+                api_key=api_key,
+                is_success=is_success,
+                status_code=status_code,
+                latency_ms=latency_ms,
+                request_time=request_datetime,
+            )
                 status_code=429,
                 detail="All API keys are currently rate-limited for this model. Please try again later.",
             )
