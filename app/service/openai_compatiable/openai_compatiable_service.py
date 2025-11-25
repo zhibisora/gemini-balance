@@ -72,18 +72,44 @@ class OpenAICompatiableService:
         self, model: str, request: dict, api_key: str
     ) -> Dict[str, Any]:
         """处理普通聊天完成"""
+        estimated_tokens = estimate_payload_tokens(request)
+
+        # --- 查找可用密钥 ---
+        if not self.key_manager:
+            raise HTTPException(status_code=500, detail="KeyManager is not initialized.")
+        number_of_keys = len(self.key_manager.api_keys)
+        if number_of_keys == 0:
+            raise HTTPException(status_code=500, detail="No API keys configured.")
+        
+        tried_keys = set()
+        for _ in range(number_of_keys):
+            if api_key in tried_keys:
+                break
+            tried_keys.add(api_key)
+            try:
+                await key_rate_limiter.check_and_reserve(model, api_key, estimated_tokens)
+                break
+            except RateLimitExceededError:
+                api_key = await self.key_manager.get_next_working_key()
+                continue
+        else:
+            raise RateLimitExceededError("All API keys are currently rate-limited for this model.")
+
+        # --- API 调用 ---
         start_time = time.perf_counter()
         request_datetime = datetime.datetime.now()
         is_success = False
         status_code = None
         response = None
         try:
-            async with rate_limiter.limit(model):
-                response = await self.api_client.generate_content(request, api_key)
+            # 全局速率限制 (旧模式，暂不修改为 reserve/adjust)
+            await rate_limiter.reserve_tokens(model, estimated_tokens)
+            response = await self.api_client.generate_content(request, api_key)
             is_success = True
             status_code = 200
             return response
         except Exception as e:
+            await key_rate_limiter.release(model, api_key, estimated_tokens)
             is_success = False
             status_code = e.args[0]
             error_log_msg = e.args[1]
@@ -99,6 +125,12 @@ class OpenAICompatiableService:
             )
             raise e
         finally:
+            # 兼容模式下无法精确计算 'actual_tokens'，因此只调整预估值
+            # 成功则消耗，失败则已在 except 中通过 release 回滚
+            await rate_limiter.adjust_token_count(model, estimated_tokens, estimated_tokens if is_success else 0)
+            if is_success:
+                 await key_rate_limiter.update_token_usage(model, api_key, estimated_tokens, estimated_tokens)
+
             end_time = time.perf_counter()
             latency_ms = int((end_time - start_time) * 1000)
             await add_request_log(
