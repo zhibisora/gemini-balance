@@ -40,10 +40,6 @@ class OpenAICompatiableService:
         if "top_k" in request_dict:
             del request_dict["top_k"]  # 删除top_k参数，目前不支持该参数
 
-        # TPM速率限制检查
-        estimated_tokens = estimate_payload_tokens(request_dict)
-        await rate_limiter.check_and_update(request.model, estimated_tokens)
-
         if request.stream:
             return self._handle_stream_completion(request.model, request_dict, api_key)
         return await self._handle_normal_completion(
