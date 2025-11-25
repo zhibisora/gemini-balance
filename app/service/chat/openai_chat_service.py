@@ -309,10 +309,6 @@ class OpenAIChatService:
 
         payload = _build_payload(request, messages, instruction)
 
-        # TPM速率限制：预留
-        estimated_tokens = estimate_payload_tokens(payload)
-        await rate_limiter.reserve_tokens(request.model, estimated_tokens)
-
         if request.stream:
             return self._handle_stream_completion(request.model, payload, api_key)
         return await self._handle_normal_completion(request.model, payload, api_key)
@@ -321,6 +317,42 @@ class OpenAIChatService:
         self, model: str, payload: Dict[str, Any], api_key: str
     ) -> Dict[str, Any]:
         """处理普通聊天完成"""
+        estimated_tokens = estimate_payload_tokens(payload)
+
+        # --- 新增逻辑: 寻找一个未被速率限制的可用密钥 ---
+        number_of_keys = len(self.key_manager.api_keys)
+        if number_of_keys == 0:
+            raise HTTPException(status_code=500, detail="No API keys configured.")
+
+        tried_keys = set()
+        for _ in range(number_of_keys):
+            if api_key in tried_keys:
+                break
+            tried_keys.add(api_key)
+
+            try:
+                await key_rate_limiter.check_and_reserve(
+                    model, api_key, estimated_tokens
+                )
+                logger.debug(
+                    f"Key ...{api_key[-4:]} passed rate limit check for model {model}."
+                )
+                break  # 找到可用密钥，跳出循环
+            except RateLimitExceededError as e:
+                logger.warning(
+                    f"Key ...{api_key[-4:]} is rate-limited for model {model}: {e}. Trying next key."
+                )
+                api_key = await self.key_manager.get_next_working_key()
+                continue
+        else:  # for-else 循环，如果没有 break 则执行
+            raise HTTPException(
+                status_code=429,
+                detail="All API keys are currently rate-limited for this model. Please try again later.",
+            )
+
+        # 全局TPM速率限制：预留
+        await rate_limiter.reserve_tokens(model, estimated_tokens)
+
         start_time = time.perf_counter()
         request_datetime = datetime.datetime.now()
         is_success = False
@@ -328,9 +360,6 @@ class OpenAIChatService:
         response = None
         actual_tokens = 0
         result = None
-        # 预估的token数在调用此函数之前就已经在 reserve_tokens 中使用了
-        # 我们需要在这里获取它以便在 finally 中使用
-        estimated_tokens = estimate_payload_tokens(payload)
 
         try:
             response = await self.api_client.generate_content(payload, model, api_key)
@@ -346,6 +375,8 @@ class OpenAIChatService:
                 usage_metadata=usage_metadata,
             )
         except Exception as e:
+            # API调用失败，释放该密钥的预留资源
+            await key_rate_limiter.release(model, api_key, estimated_tokens)
             is_success = False
             if hasattr(e, "args") and len(e.args) >= 2:
                 status_code, error_log_msg = e.args[0], e.args[1]
@@ -366,9 +397,15 @@ class OpenAIChatService:
         finally:
             if response:
                 actual_tokens = get_actual_tokens_from_response(response)
+            # 调整全局TPM计数
             await rate_limiter.adjust_token_count(
                 model, estimated_tokens, actual_tokens
             )
+            # 如果调用成功，则根据实际token用量校正单个密钥的TPM计数
+            if is_success:
+                await key_rate_limiter.update_token_usage(
+                    model, api_key, estimated_tokens, actual_tokens
+                )
 
             end_time = time.perf_counter()
             latency_ms = int((end_time - start_time) * 1000)
