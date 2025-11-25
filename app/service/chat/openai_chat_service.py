@@ -631,12 +631,15 @@ class OpenAIChatService:
                 break
 
             except Exception as e:
+                # API调用失败，释放该密钥的预留资源
+                await key_rate_limiter.release(model, current_attempt_key, estimated_tokens)
+
                 retries += 1
                 is_success = False
                 status_code = e.args[0]
                 error_log_msg = e.args[1]
                 logger.warning(
-                    f"Streaming API call failed with error: {error_log_msg}. Attempt {retries} of {max_retries} with key {current_attempt_key}"
+                    f"Streaming API call failed: {error_log_msg}. Attempt {retries} of {max_retries} with key ...{current_attempt_key[-4:]}"
                 )
 
                 await add_error_log(
