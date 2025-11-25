@@ -139,3 +139,75 @@ class ModelRateLimiter:
 
 # 速率限制器的单例实例
 rate_limiter = ModelRateLimiter()
+
+
+class IndividualKeyRateLimiter:
+    """
+    为池中的每个API密钥在特定模型上应用独立的速率限制。
+    当某个密钥在某个模型上达到限制后，它会暂时从该模型的轮询中移除，
+    直到限制窗口过去后自动恢复。
+    """
+
+    def __init__(self):
+        self._limiters: Dict[str, Dict[str, int]] = {}  # {model: {rpm: x, tpm: y, rpd: z}}
+        self._usage: Dict[str, Dict[str, Dict[str, Any]]] = {}  # {model: {api_key: {usage_data}}}
+        self._lock = asyncio.Lock()
+        self._parse_config()
+
+    def _parse_config(self):
+        """从设置中解析每个模型下单个Key的速率限制配置。"""
+        try:
+            limits_config_str = settings.MODEL_KEY_LIMITS
+            limits_config = json.loads(limits_config_str or "{}")
+
+            if not isinstance(limits_config, dict):
+                logger.warning("MODEL_KEY_LIMITS 不是一个有效的字典。将不应用密钥速率限制。")
+                return
+
+            for model, config in limits_config.items():
+                if not isinstance(config, dict):
+                    logger.warning(f"模型 '{model}' 的密钥限制配置格式无效，应为字典。跳过。")
+                    continue
+                
+                validated_limits = {}
+                for limit_type in ["rpm", "tpm", "rpd"]:
+                    limit_value = config.get(limit_type)
+                    if limit_value is not None:
+                        if isinstance(limit_value, int) and limit_value > 0:
+                            validated_limits[limit_type] = limit_value
+                        else:
+                            logger.warning(f"模型 '{model}' 的 '{limit_type}' 值无效: {limit_value}。必须是正整数。")
+                
+                if validated_limits:
+                    self._limiters[model] = validated_limits
+                    logger.info(f"为模型 '{model}' 启用独立密钥速率限制: {validated_limits}")
+
+        except (json.JSONDecodeError, TypeError) as e:
+            logger.warning(f"无法解析 MODEL_KEY_LIMITS。错误: {e}。将不应用密钥速率限制。")
+            self._limiters = {}
+
+    async def check_and_reserve(self, model_name: str, api_key: str, tokens_to_use: int = 0):
+        """
+        检查指定密钥在指定模型上是否超出限制。如果未超出，则预留资源。
+        如果超出限制，则抛出 RateLimitExceededError。
+        (逻辑将在下一步实现)
+        """
+        pass
+
+    async def release(self, model_name: str, api_key: str, tokens_to_use: int = 0):
+        """
+        当API调用失败时，释放之前预留的资源。
+        (逻辑将在下一步实现)
+        """
+        pass
+
+    async def update_token_usage(self, model_name: str, api_key: str, reserved_tokens: int, actual_tokens: int):
+        """
+        根据实际使用的Token数校正TPM计数。
+        (逻辑将在下一步实现)
+        """
+        pass
+
+
+# 单个密钥速率限制器的单例实例
+key_rate_limiter = IndividualKeyRateLimiter()
