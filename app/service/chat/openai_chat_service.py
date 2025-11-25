@@ -7,6 +7,8 @@ import time
 from copy import deepcopy
 from typing import Any, AsyncGenerator, Dict, List, Optional, Union
 
+from fastapi import HTTPException
+
 from app.config.config import settings
 from app.core.constants import GEMINI_2_FLASH_EXP_SAFETY_SETTINGS
 from app.database.services import (

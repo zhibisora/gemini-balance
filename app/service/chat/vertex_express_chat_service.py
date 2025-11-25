@@ -1,5 +1,6 @@
 # app/services/chat_service.py
 
+import datetime
 import json
 import time
 from typing import Any, AsyncGenerator, Dict, List
