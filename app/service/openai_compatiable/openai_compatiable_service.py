@@ -145,79 +145,71 @@ class OpenAICompatiableService:
     async def _handle_stream_completion(
         self, model: str, payload: dict, api_key: str
     ) -> AsyncGenerator[str, None]:
-        """处理流式聊天完成，添加重试逻辑"""
-        retries = 0
-        max_retries = settings.MAX_RETRIES
+        """处理流式聊天完成"""
+        estimated_tokens = estimate_payload_tokens(payload)
+
+        # --- 查找可用密钥 ---
+        if not self.key_manager:
+            raise HTTPException(status_code=500, detail="KeyManager is not initialized.")
+        number_of_keys = len(self.key_manager.api_keys)
+        if number_of_keys == 0:
+            raise HTTPException(status_code=500, detail="No API keys configured.")
+
+        tried_keys = set()
+        for _ in range(number_of_keys):
+            if api_key in tried_keys:
+                break
+            tried_keys.add(api_key)
+            try:
+                await key_rate_limiter.check_and_reserve(model, api_key, estimated_tokens)
+                break
+            except RateLimitExceededError:
+                api_key = await self.key_manager.get_next_working_key()
+                continue
+        else:
+            raise RateLimitExceededError("All API keys are currently rate-limited for this model.")
+
+        # --- API 调用 ---
+        await rate_limiter.reserve_tokens(model, estimated_tokens)
+        start_time = time.perf_counter()
+        request_datetime = datetime.datetime.now()
         is_success = False
         status_code = None
-        final_api_key = api_key
 
-        while retries < max_retries:
-            start_time = time.perf_counter()
-            request_datetime = datetime.datetime.now()
-            current_attempt_key = api_key
-            final_api_key = current_attempt_key
-            try:
-                async with rate_limiter.limit(model):
-                    async for line in self.api_client.stream_generate_content(
-                        payload, current_attempt_key
-                    ):
-                        if line.startswith("data:"):
-                            # print(line)
-                            yield line + "\n\n"
-                logger.info("Streaming completed successfully")
-                is_success = True
-                status_code = 200
-                break
-            except Exception as e:
-                retries += 1
-                is_success = False
-                status_code = e.args[0]
-                error_log_msg = e.args[1]
-                logger.warning(
-                    f"Streaming API call failed with error: {error_log_msg}. Attempt {retries} of {max_retries}"
-                )
-
-                await add_error_log(
-                    gemini_key=current_attempt_key,
-                    model_name=model,
-                    error_type="openai-compatiable-stream",
-                    error_log=error_log_msg,
-                    error_code=status_code,
-                    request_msg=(
-                        payload if settings.ERROR_LOG_RECORD_REQUEST_BODY else None
-                    ),
-                    request_datetime=request_datetime,
-                )
-
-                if self.key_manager:
-                    api_key = await self.key_manager.handle_api_failure(
-                        current_attempt_key, retries
-                    )
-                    if api_key:
-                        logger.info(
-                            f"Switched to new API key: {redact_key_for_logging(api_key)}"
-                        )
-                    else:
-                        logger.error(
-                            f"No valid API key available after {retries} retries."
-                        )
-                        raise
-                else:
-                    logger.error("KeyManager not available for retry logic.")
-                    break
-
-                if retries >= max_retries:
-                    logger.error(f"Max retries ({max_retries}) reached for streaming.")
-                    raise
-            finally:
-                end_time = time.perf_counter()
-                latency_ms = int((end_time - start_time) * 1000)
-                await add_request_log(
-                    model_name=model,
-                    api_key=final_api_key,
-                    is_success=is_success,
-                    status_code=status_code,
-                    latency_ms=latency_ms,
-                    request_time=request_datetime,
-                )
+        try:
+            async for line in self.api_client.stream_generate_content(payload, api_key):
+                if line.startswith("data:"):
+                    yield line + "\n\n"
+            is_success = True
+            status_code = 200
+        except Exception as e:
+            await key_rate_limiter.release(model, api_key, estimated_tokens)
+            is_success = False
+            status_code = e.args[0]
+            error_log_msg = e.args[1]
+            logger.error(f"Streaming API call failed: {error_log_msg}")
+            await add_error_log(
+                gemini_key=api_key,
+                model_name=model,
+                error_type="openai-compatiable-stream",
+                error_log=error_log_msg,
+                error_code=status_code,
+                request_msg=(payload if settings.ERROR_LOG_RECORD_REQUEST_BODY else None),
+                request_datetime=request_datetime,
+            )
+            raise e
+        finally:
+            await rate_limiter.adjust_token_count(model, estimated_tokens, estimated_tokens if is_success else 0)
+            if is_success:
+                await key_rate_limiter.update_token_usage(model, api_key, estimated_tokens, estimated_tokens)
+            
+            end_time = time.perf_counter()
+            latency_ms = int((end_time - start_time) * 1000)
+            await add_request_log(
+                model_name=model,
+                api_key=api_key,
+                is_success=is_success,
+                status_code=status_code,
+                latency_ms=latency_ms,
+                request_time=request_datetime,
+            )
