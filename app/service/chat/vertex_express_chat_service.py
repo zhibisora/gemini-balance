@@ -1,14 +1,5 @@
 # app/services/chat_service.py
 
-import datetime
-import json
-import time
-from typing import Any, AsyncGenerator, Dict, List
-
-from app.config.config import settings
-from app.core.constants import GEMINI_2_FLASH_EXP_SAFETY_SETTINGS
-from app.database.services import add_error_log, add_request_log
-import datetime
 import json
 import time
 from typing import Any, AsyncGenerator, Dict, List
@@ -17,13 +8,18 @@ from app.config.config import settings
 from app.core.constants import GEMINI_2_FLASH_EXP_SAFETY_SETTINGS
 from app.database.services import add_error_log, add_request_log
 from app.domain.gemini_models import GeminiRequest
-from app.handler.rate_limit_handler import rate_limiter
+from app.exception.exceptions import RateLimitExceededError
+from app.handler.rate_limit_handler import key_rate_limiter, rate_limiter
 from app.handler.response_handler import GeminiResponseHandler
 from app.handler.stream_optimizer import gemini_optimizer
 from app.log.logger import get_gemini_logger
 from app.service.client.api_client import GeminiApiClient
 from app.service.key.key_manager import KeyManager
-from app.utils.helpers import estimate_payload_tokens, redact_key_for_logging
+from app.utils.helpers import (
+    estimate_payload_tokens,
+    get_actual_tokens_from_response,
+    redact_key_for_logging,
+)
 
 logger = get_gemini_logger()
 
