@@ -190,23 +190,120 @@ class IndividualKeyRateLimiter:
         """
         检查指定密钥在指定模型上是否超出限制。如果未超出，则预留资源。
         如果超出限制，则抛出 RateLimitExceededError。
-        (逻辑将在下一步实现)
         """
-        pass
+        from datetime import date, timedelta
 
-    async def release(self, model_name: str, api_key: str, tokens_to_use: int = 0):
+        limits = self._limiters.get(model_name)
+        if not limits:
+            return  # 该模型没有配置限制
+
+        async with self._lock:
+            now = time.monotonic()
+            today_str = date.today().isoformat()
+
+            # 如果模型或密钥首次使用，则初始化其用量数据
+            if model_name not in self._usage:
+                self._usage[model_name] = {}
+            if api_key not in self._usage[model_name]:
+                self._usage[model_name][api_key] = {
+                    "rpm_count": 0,
+                    "rpm_window_start": now,
+                    "tpm_count": 0,
+                    "rpd_count": 0,
+                    "rpd_day": today_str,
+                }
+            
+            usage = self._usage[model_name][api_key]
+
+            # --- 检查并重置分钟级时间窗口 (RPM, TPM) ---
+            if now >= usage["rpm_window_start"] + 60:
+                usage["rpm_window_start"] = now
+                usage["rpm_count"] = 0
+                usage["tpm_count"] = 0
+                logger.debug(f"分钟级速率限制窗口已为密钥 ...{api_key[-4:]} 在模型 {model_name} 上重置")
+
+            # --- 检查并重置天级时间窗口 (RPD) ---
+            if usage.get("rpd_day") != today_str:
+                usage["rpd_day"] = today_str
+                usage["rpd_count"] = 0
+                logger.debug(f"天级速率限制窗口已为密钥 ...{api_key[-4:]} 在模型 {model_name} 上重置")
+
+            # --- 执行检查 ---
+            # RPM 检查
+            if "rpm" in limits and usage["rpm_count"] >= limits["rpm"]:
+                time_to_wait = (usage["rpm_window_start"] + 60) - now
+                raise RateLimitExceededError(
+                    f"RPM 限制 ({limits['rpm']}) 已在模型 '{model_name}' 上达到。 "
+                    f"请在 {time_to_wait:.2f} 秒后重试。"
+                )
+
+            # TPM 检查
+            if "tpm" in limits and usage["tpm_count"] + tokens_to_use > limits["tpm"]:
+                time_to_wait = (usage["rpm_window_start"] + 60) - now
+                raise RateLimitExceededError(
+                    f"TPM 限制 ({limits['tpm']}) 将在模型 '{model_name}' 上超出。 "
+                    f"请在 {time_to_wait:.2f} 秒后重试。"
+                )
+
+            # RPD 检查
+            if "rpd" in limits and usage["rpd_count"] >= limits["rpd"]:
+                tomorrow = datetime.now() + timedelta(days=1)
+                midnight = tomorrow.replace(hour=0, minute=0, second=0, microsecond=0)
+                time_to_wait_seconds = (midnight - datetime.now()).total_seconds()
+                raise RateLimitExceededError(
+                    f"RPD 限制 ({limits['rpd']}) 已在模型 '{model_name}' 上达到。 "
+                    f"请在 {time_to_wait_seconds / 3600:.2f} 小时后重试。"
+                )
+
+            # --- 如果所有检查通过，则预留用量 ---
+            usage["rpm_count"] += 1
+            usage["tpm_count"] += tokens_to_use
+            usage["rpd_count"] += 1
+            logger.debug(
+                f"用量已为密钥 ...{api_key[-4:]} 在模型 {model_name} 上预留: "
+                f"RPM={usage['rpm_count']}/{limits.get('rpm', 'N/A')}, "
+                f"TPM={usage['tpm_count']}/{limits.get('tpm', 'N/A')}, "
+                f"RPD={usage['rpd_count']}/{limits.get('rpd', 'N/A')}"
+            )
+
+    async def release(self, model_name: str, api_key: str, tokens_to_release: int = 0):
         """
         当API调用失败时，释放之前预留的资源。
-        (逻辑将在下一步实现)
         """
-        pass
+        if model_name not in self._limiters:
+            return
+
+        async with self._lock:
+            usage = self._usage.get(model_name, {}).get(api_key)
+            if not usage:
+                return
+
+            usage["rpm_count"] = max(0, usage["rpm_count"] - 1)
+            usage["tpm_count"] = max(0, usage["tpm_count"] - tokens_to_release)
+            usage["rpd_count"] = max(0, usage["rpd_count"] - 1)
+            logger.debug(f"用量已为密钥 ...{api_key[-4:]} 在模型 {model_name} 上因失败而释放。")
 
     async def update_token_usage(self, model_name: str, api_key: str, reserved_tokens: int, actual_tokens: int):
         """
         根据实际使用的Token数校正TPM计数。
-        (逻辑将在下一步实现)
         """
-        pass
+        if "tpm" not in self._limiters.get(model_name, {}):
+            return
+
+        delta = actual_tokens - reserved_tokens
+        if delta == 0:
+            return
+
+        async with self._lock:
+            usage = self._usage.get(model_name, {}).get(api_key)
+            if not usage:
+                return
+            
+            usage["tpm_count"] = max(0, usage["tpm_count"] + delta)
+            logger.debug(
+                f"TPM 计数已为密钥 ...{api_key[-4:]} 在模型 {model_name} 上校正 {delta}。 "
+                f"新计数: {usage['tpm_count']}"
+            )
 
 
 # 单个密钥速率限制器的单例实例
