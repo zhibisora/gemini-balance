@@ -568,7 +568,39 @@ class OpenAIChatService:
         while retries < max_retries:
             start_time = time.perf_counter()
             request_datetime = datetime.datetime.now()
+
+            # --- 为本次尝试寻找一个未被速率限制的密钥 ---
+            number_of_keys = len(self.key_manager.api_keys)
+            if number_of_keys == 0:
+                raise HTTPException(status_code=500, detail="No API keys configured.")
+
             current_attempt_key = final_api_key
+            found_usable_key = False
+            tried_keys_this_round = set()
+
+            for _ in range(number_of_keys):
+                if current_attempt_key in tried_keys_this_round:
+                    break
+                tried_keys_this_round.add(current_attempt_key)
+
+                try:
+                    await key_rate_limiter.check_and_reserve(
+                        model, current_attempt_key, estimated_tokens
+                    )
+                    found_usable_key = True
+                    break  # 找到可用密钥
+                except RateLimitExceededError:
+                    logger.warning(
+                        f"Key ...{current_attempt_key[-4:]} is rate-limited. Trying next."
+                    )
+                    current_attempt_key = await self.key_manager.get_next_working_key()
+
+            if not found_usable_key:
+                raise HTTPException(
+                    status_code=429,
+                    detail="All API keys are currently rate-limited for this model.",
+                )
+            # -----------------------------------------
 
             try:
                 stream_generator = None
