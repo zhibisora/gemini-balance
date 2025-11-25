@@ -684,7 +684,7 @@ class OpenAIChatService:
                 latency_ms = int((end_time - start_time) * 1000)
                 await add_request_log(
                     model_name=model,
-                    api_key=current_attempt_key,
+                    api_key=current_attempt_key,  # Log the key used for this specific attempt
                     is_success=is_success,
                     status_code=status_code,
                     latency_ms=latency_ms,
