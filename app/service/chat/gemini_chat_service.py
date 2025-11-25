@@ -371,7 +371,7 @@ class GeminiChatService:
         payload = _build_payload(model, request)
         estimated_tokens = estimate_payload_tokens(payload)
 
-        # --- 新增逻辑: 寻找一个未被速率限制的可用密钥 ---
+        # --- 寻找一个未被速率限制的可用密钥 ---
         number_of_keys = len(self.key_manager.api_keys)
         if number_of_keys == 0:
             raise HTTPException(status_code=500, detail="No API keys configured.")
