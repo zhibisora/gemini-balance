@@ -95,6 +95,10 @@ class Settings(BaseSettings):
     # e.g., '{"gemini-2.5-pro": 60000}'
     MODEL_TPM_LIMITS: str = "{}"
 
+    # 单个Key在特定模型上的速率限制 (JSON string)
+    # e.g., '{"gemini-1.5-pro-latest": {"rpm": 5, "tpm": 100000, "rpd": 1000}}'
+    MODEL_KEY_LIMITS: str = "{}"
+
     # TTS相关配置
     TTS_MODEL: str = "gemini-2.5-flash-preview-tts"
     TTS_VOICE_NAME: str = "Zephyr"
