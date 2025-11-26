@@ -649,6 +649,18 @@ class OpenAIChatService:
                     f"Streaming API call failed: {error_log_msg}. Attempt {retries} of {max_retries} with key ...{current_attempt_key[-4:]}"
                 )
 
+                # 判断是否是Google的配额耗尽错误
+                is_resource_exhausted_error = (
+                    status_code == 429
+                    and "Resource has been exhausted" in error_log_msg
+                )
+                # 如果不是配额耗尽错误，才释放预留的资源
+                if not is_resource_exhausted_error:
+                    # API调用失败，释放该密钥的预留资源
+                    await key_rate_limiter.release(
+                        model, current_attempt_key, estimated_tokens
+                    )
+
                 await add_error_log(
                     gemini_key=current_attempt_key,
                     model_name=model,
