@@ -109,11 +109,20 @@ class OpenAICompatiableService:
             status_code = 200
             return response
         except Exception as e:
-            await key_rate_limiter.release(model, api_key, estimated_tokens)
             is_success = False
             status_code = e.args[0]
             error_log_msg = e.args[1]
             logger.error(f"Normal API call failed with error: {error_log_msg}")
+
+            # 判断是否是Google的配额耗尽错误
+            is_resource_exhausted_error = (
+                status_code == 429
+                and "Resource has been exhausted" in error_log_msg
+            )
+
+            # 如果不是配额耗尽错误，才释放预留的资源
+            if not is_resource_exhausted_error:
+                await key_rate_limiter.release(model, api_key, estimated_tokens)
 
             await add_error_log(
                 gemini_key=api_key,
