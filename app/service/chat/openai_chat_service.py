@@ -641,9 +641,6 @@ class OpenAIChatService:
                 break
 
             except Exception as e:
-                # API调用失败，释放该密钥的预留资源
-                await key_rate_limiter.release(model, current_attempt_key, estimated_tokens)
-
                 retries += 1
                 is_success = False
                 status_code = e.args[0]
