@@ -377,13 +377,21 @@ class OpenAIChatService:
                 usage_metadata=usage_metadata,
             )
         except Exception as e:
-            # API调用失败，释放该密钥的预留资源
-            await key_rate_limiter.release(model, api_key, estimated_tokens)
             is_success = False
             if hasattr(e, "args") and len(e.args) >= 2:
                 status_code, error_log_msg = e.args[0], e.args[1]
             else:
                 status_code, error_log_msg = 500, str(e)
+
+            # 判断是否是Google的配额耗尽错误
+            is_resource_exhausted_error = (
+                status_code == 429 and "Resource has been exhausted" in error_log_msg
+            )
+
+            # 如果不是配额耗尽错误，才释放预留的资源
+            if not is_resource_exhausted_error:
+                # API调用失败，释放该密钥的预留资源
+                await key_rate_limiter.release(model, api_key, estimated_tokens)
 
             logger.error(f"API call failed for model {model}: {error_log_msg}")
             await add_error_log(
