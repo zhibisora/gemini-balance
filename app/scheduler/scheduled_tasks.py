@@ -5,7 +5,6 @@ from app.domain.gemini_models import GeminiContent, GeminiRequest
 from app.log.logger import Logger
 from app.service.chat.gemini_chat_service import GeminiChatService
 from app.service.error_log.error_log_service import delete_old_error_logs
-from app.service.files.files_service import get_files_service
 from app.service.key.key_manager import get_key_manager_instance
 from app.service.request_log.request_log_service import delete_old_request_logs_task
 from app.utils.helpers import redact_key_for_logging
