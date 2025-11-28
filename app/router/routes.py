@@ -38,7 +38,6 @@ def setup_routers(app: FastAPI) -> None:
     Args:
         app: FastAPI应用程序实例
     """
-    app.include_router(openai_routes.router)
     app.include_router(gemini_routes.router)
     app.include_router(gemini_routes.router_v1beta)
     app.include_router(config_routes.router)
@@ -46,7 +45,6 @@ def setup_routers(app: FastAPI) -> None:
     app.include_router(scheduler_routes.router)
     app.include_router(stats_routes.router)
     app.include_router(version_routes.router)
-    app.include_router(openai_compatiable_routes.router)
     app.include_router(vertex_express_routes.router)
     app.include_router(files_routes.router)
     app.include_router(key_routes.router)
