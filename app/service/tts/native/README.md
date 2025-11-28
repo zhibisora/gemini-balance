@@ -297,18 +297,16 @@ tail -f logs/app.log
 
 项目中现在有三套TTS系统，各自服务不同的用途：
 
-| TTS类型 | 路径 | 模型选择 | 语音配置 | 使用场景 | 我们的影响 |
-|---------|------|----------|----------|----------|------------|
-| **OpenAI兼容TTS** | `/v1/audio/speech` | 固定配置文件 | 单人语音 | OpenAI API兼容 | ✅ 无影响 |
-| **Gemini单人TTS** | `/v1beta/models/{model}:generateContent` | 用户指定 | 单人语音 | 原生Gemini TTS | ✅ 我们的增强 |
-| **Gemini多人TTS** | `/v1beta/models/{model}:generateContent` | 用户指定 | 多人语音 | 对话场景 | ✅ 我们的增强 |
+| TTS类型 | 路径 | 模型选择 | 语音配置 | 使用场景 |
+|---|---|---|---|---|
+| **Gemini单人TTS** | `/v1beta/models/{model}:generateContent` | 用户指定 | 单人语音 | 原生Gemini TTS |
+| **Gemini多人TTS** | `/v1beta/models/{model}:generateContent` | 用户指定 | 多人语音 | 对话场景 |
 
 ### 智能路由机制
 
 ```mermaid
 flowchart TD
     A[API请求] --> B{路径检查}
-    B -->|/v1/audio/speech| C[OpenAI兼容TTS服务]
     B -->|/v1beta/models/{model}:generateContent| D{模型名包含'tts'?}
     D -->|否| E[标准Gemini聊天服务]
     D -->|是| F{包含responseModalities和speechConfig?}
