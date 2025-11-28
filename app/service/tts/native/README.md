@@ -137,28 +137,6 @@ curl -X POST "https://your-domain.com/v1beta/models/gemini-2.5-flash-preview-tts
   }'
 ```
 
-### 3. OpenAI兼容TTS请求（使用原有服务）
-
-OpenAI兼容格式的TTS请求使用不同的API路径，不受本模块影响：
-
-```bash
-curl -X POST "https://your-domain.com/v1/audio/speech" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer your-token" \
-  -d '{
-    "model": "tts-1",
-    "input": "这是一个OpenAI兼容格式的TTS测试。",
-    "voice": "alloy"
-  }' \
-  --output openai_tts_test.wav
-```
-
-**注意**：OpenAI兼容TTS请求：
-- 使用路径：`/v1/audio/speech`
-- 使用Authorization头而不是x-goog-api-key
-- 返回音频文件而不是JSON响应
-- 不受本模块的TTS增强服务影响
-
 ### 普通文本生成（使用原有服务）
 
 非TTS模型的请求会使用原有的Gemini聊天服务，完全不受影响：
