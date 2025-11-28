@@ -12,7 +12,6 @@ from app.log.logger import get_routes_logger
 from app.router import (
     config_routes,
     error_log_routes,
-    files_routes,
     gemini_routes,
     key_routes,
     scheduler_routes,
