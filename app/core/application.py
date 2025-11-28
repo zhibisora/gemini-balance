@@ -76,7 +76,6 @@ async def lifespan(app: FastAPI):
     logger.info("Application starting up...")
     try:
         await _setup_database_and_config(settings)
-        await _perform_update_check(app)
         _start_scheduler()
 
     except Exception as e:
