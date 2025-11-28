@@ -96,27 +96,6 @@ async def check_failed_keys():
         )
 
 
-async def cleanup_expired_files():
-    """
-    定时清理过期的文件记录
-    """
-    logger.info("Starting scheduled cleanup for expired files...")
-    try:
-        files_service = await get_files_service()
-        deleted_count = await files_service.cleanup_expired_files()
-
-        if deleted_count > 0:
-            logger.info(f"Successfully cleaned up {deleted_count} expired files.")
-        else:
-            logger.info("No expired files to clean up.")
-
-    except Exception as e:
-        logger.error(
-            f"An error occurred during the scheduled file cleanup: {str(e)}",
-            exc_info=True,
-        )
-
-
 def setup_scheduler():
     """设置并启动 APScheduler"""
     scheduler = AsyncIOScheduler(timezone=str(settings.TIMEZONE))  # 从配置读取时区
