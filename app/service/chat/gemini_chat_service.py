@@ -8,7 +8,7 @@ from typing import Any, AsyncGenerator, Dict, List
 
 from app.config.config import settings
 from app.core.constants import GEMINI_2_FLASH_EXP_SAFETY_SETTINGS
-from app.database.services import add_error_log, add_request_log, get_file_api_key
+from app.database.services import add_error_log, add_request_log
 import datetime
 import json
 import re
