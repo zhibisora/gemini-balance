@@ -15,8 +15,6 @@ from app.router import (
     files_routes,
     gemini_routes,
     key_routes,
-    openai_compatiable_routes,
-    openai_routes,
     scheduler_routes,
     stats_routes,
     version_routes,
