@@ -245,7 +245,6 @@ TTSGenerationConfig
   - **多人TTS**：支持 `multiSpeakerVoiceConfig` 配置
 - **智能检测机制**：自动检测所有原生Gemini TTS格式的请求
 - **动态模型选择**：支持用户在URL中指定不同TTS模型
-- **完全向后兼容**：原有TTS功能（OpenAI兼容TTS）完全不受影响
 - **自动回退机制**：原生TTS处理失败时自动使用标准服务
 - **完整日志记录**：请求日志、错误日志、性能监控
 - **API配额管理**：自动重试和密钥轮换
