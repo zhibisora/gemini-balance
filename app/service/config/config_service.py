@@ -238,7 +238,7 @@ class ConfigService:
                     detail="No valid API keys available to fetch model list.",
                 )
 
-            models = await model_service.get_gemini_openai_models(api_key)
+            models = await model_service.get_gemini_models(api_key)
             return models
         except HTTPException as e:
             raise e
