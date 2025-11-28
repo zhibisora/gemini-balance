@@ -5,7 +5,7 @@
 import asyncio
 import json
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, Tuple
 
 from sqlalchemy import asc, delete, desc, func, insert, select, update
 
