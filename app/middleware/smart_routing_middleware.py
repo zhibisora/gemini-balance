@@ -44,19 +44,7 @@ class SmartRoutingMiddleware(BaseHTTPMiddleware):
         if "generatecontent" in path.lower() or "v1beta/models" in path.lower():
             return self.fix_gemini_by_operation(path, method, request)
 
-        # 2. 第二优先级：包含/openai/ → OpenAI格式
-        if "/openai/" in path.lower():
-            return self.fix_openai_by_operation(path, method)
-
-        # 3. 第三优先级：包含/v1/ → v1格式
-        if "/v1/" in path.lower():
-            return self.fix_v1_by_operation(path, method)
-
-        # 4. 第四优先级：包含/chat/completions → chat功能
-        if "/chat/completions" in path.lower():
-            return "/v1/chat/completions", {"type": "v1_chat"}
-
-        # 5. 默认：原样传递
+        # 默认：原样传递
         return path, None
 
     def is_already_correct_format(self, path: str) -> bool:
