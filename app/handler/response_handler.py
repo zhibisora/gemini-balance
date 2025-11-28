@@ -178,39 +178,21 @@ def _extract_image_data(part: dict) -> str:
 
 
 def _extract_tool_calls(
-    parts: List[Dict[str, Any]], gemini_format: bool
+    parts: List[Dict[str, Any]]
 ) -> List[Dict[str, Any]]:
     """提取工具调用信息"""
     if not parts or not isinstance(parts, list):
         return []
 
-    letters = string.ascii_lowercase + string.digits
-    tool_calls = list()
-
-    for i in range(len(parts)):
-        part = parts[i]
+    tool_calls = []
+    for part in parts:
         if not part or not isinstance(part, dict):
             continue
 
-        item = part.get("functionCall", {})
-        if not item or not isinstance(item, dict):
+        if "functionCall" not in part or not isinstance(part.get("functionCall"), dict):
             continue
 
-        if gemini_format:
-            tool_calls.append(part)
-        else:
-            id = f"call_{''.join(random.sample(letters, 32))}"
-            name = item.get("name", "")
-            arguments = json.dumps(item.get("args", None) or {})
-
-            tool_calls.append(
-                {
-                    "index": i,
-                    "id": id,
-                    "type": "function",
-                    "function": {"name": name, "arguments": arguments},
-                }
-            )
+        tool_calls.append(part)
 
     return tool_calls
 
