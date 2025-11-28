@@ -45,7 +45,6 @@ class AccessLogFormatter(logging.Formatter):
     # API key patterns to match in URLs
     API_KEY_PATTERNS = [
         r"\bAIza[0-9A-Za-z_-]{35}",  # Google API keys (like Gemini)
-        r"\bsk-[0-9A-Za-z_-]{20,}",  # OpenAI and general sk- prefixed keys
     ]
 
     def __init__(self, *args, **kwargs):
