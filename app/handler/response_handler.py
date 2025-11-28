@@ -205,7 +205,7 @@ def _handle_gemini_stream_response(
         return response
 
     text, reasoning_content, tool_calls, thought = _extract_result(
-        response, model, stream=stream, gemini_format=True
+        response, model, stream=stream
     )
     if tool_calls:
         content = {"parts": tool_calls, "role": "model"}
