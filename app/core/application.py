@@ -65,24 +65,6 @@ def _stop_scheduler():
     stop_scheduler()
 
 
-async def _perform_update_check(app: FastAPI):
-    """Checks for updates and stores the info in app.state."""
-    update_available, latest_version, error_message = await check_for_updates()
-    current_version = get_current_version()
-    update_info = {
-        "update_available": update_available,
-        "latest_version": latest_version,
-        "error_message": error_message,
-        "current_version": current_version,
-    }
-    if not hasattr(app, "state"):
-        from starlette.datastructures import State
-
-        app.state = State()
-    app.state.update_info = update_info
-    logger.info(f"Update check completed. Info: {update_info}")
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
