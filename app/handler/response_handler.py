@@ -112,7 +112,7 @@ def _extract_result(
 
             # 安全地获取 parts 用于工具调用提取
             parts = candidate.get("content", {}).get("parts", [])
-            tool_calls = _extract_tool_calls(parts, gemini_format)
+            tool_calls = _extract_tool_calls(parts)
         else:
             logger.warning(f"No candidates found in response for model: {model}")
             text = "暂无返回"
