@@ -136,20 +136,6 @@ def setup_scheduler():
         f"Auto-delete request logs job scheduled to run daily at 3:05 AM, if enabled and AUTO_DELETE_REQUEST_LOGS_DAYS is set to {settings.AUTO_DELETE_REQUEST_LOGS_DAYS} days."
     )
 
-    # 新增：添加文件过期清理的定时任务，每小时执行一次
-    if getattr(settings, "FILES_CLEANUP_ENABLED", True):
-        cleanup_interval = getattr(settings, "FILES_CLEANUP_INTERVAL_HOURS", 1)
-        scheduler.add_job(
-            cleanup_expired_files,
-            "interval",
-            hours=cleanup_interval,
-            id="cleanup_expired_files_job",
-            name="Cleanup Expired Files",
-        )
-        logger.info(
-            f"File cleanup job scheduled to run every {cleanup_interval} hour(s)."
-        )
-
     scheduler.start()
     logger.info("Scheduler started with all jobs.")
     return scheduler
