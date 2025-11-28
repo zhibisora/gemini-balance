@@ -184,10 +184,6 @@ class Logger:
 
 
 # 预定义的loggers
-def get_openai_logger():
-    return Logger.setup_logger("openai")
-
-
 def get_gemini_logger():
     return Logger.setup_logger("gemini")
 
