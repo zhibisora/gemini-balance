@@ -121,40 +121,6 @@ class SmartRoutingMiddleware(BaseHTTPMiddleware):
 
         return target_url, fix_info
 
-    def fix_openai_by_operation(self, path: str, method: str) -> tuple:
-        """根据操作类型修复OpenAI格式"""
-        if method == "POST":
-            if "chat" in path.lower() or "completion" in path.lower():
-                return "/openai/v1/chat/completions", {"type": "openai_chat"}
-            elif "embedding" in path.lower():
-                return "/openai/v1/embeddings", {"type": "openai_embeddings"}
-            elif "image" in path.lower():
-                return "/openai/v1/images/generations", {"type": "openai_images"}
-            elif "audio" in path.lower():
-                return "/openai/v1/audio/speech", {"type": "openai_audio"}
-        elif method == "GET":
-            if "model" in path.lower():
-                return "/openai/v1/models", {"type": "openai_models"}
-
-        return path, None
-
-    def fix_v1_by_operation(self, path: str, method: str) -> tuple:
-        """根据操作类型修复v1格式"""
-        if method == "POST":
-            if "chat" in path.lower() or "completion" in path.lower():
-                return "/v1/chat/completions", {"type": "v1_chat"}
-            elif "embedding" in path.lower():
-                return "/v1/embeddings", {"type": "v1_embeddings"}
-            elif "image" in path.lower():
-                return "/v1/images/generations", {"type": "v1_images"}
-            elif "audio" in path.lower():
-                return "/v1/audio/speech", {"type": "v1_audio"}
-        elif method == "GET":
-            if "model" in path.lower():
-                return "/v1/models", {"type": "v1_models"}
-
-        return path, None
-
     def detect_stream_request(self, path: str, request: Request) -> bool:
         """检测是否为流式请求"""
         # 1. 路径中包含stream关键词
