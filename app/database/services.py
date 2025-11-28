@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Union, Tuple
 from sqlalchemy import asc, delete, desc, func, insert, select, update
 
 from app.database.connection import database
-from app.database.models import ErrorLog, FileRecord, FileState, RequestLog, Settings
+from app.database.models import ErrorLog, RequestLog, Settings
 from app.log.logger import get_database_logger
 from app.utils.helpers import redact_key_for_logging
 
