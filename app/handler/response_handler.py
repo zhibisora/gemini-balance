@@ -226,7 +226,7 @@ def _handle_gemini_normal_response(
         return response
 
     text, reasoning_content, tool_calls, thought = _extract_result(
-        response, model, stream=stream, gemini_format=True
+        response, model, stream=stream
     )
     parts = []
     if tool_calls:
