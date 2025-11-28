@@ -279,11 +279,6 @@ def get_message_converter_logger():
 def get_api_client_logger():
     return Logger.setup_logger("api_client")
 
-
-def get_openai_compatible_logger():
-    return Logger.setup_logger("openai_compatible")
-
-
 def get_error_log_logger():
     return Logger.setup_logger("error_log")
 
