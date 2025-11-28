@@ -11,9 +11,8 @@ from app.core.constants import (
     DEFAULT_STREAM_MIN_DELAY,
     DEFAULT_STREAM_SHORT_TEXT_THRESHOLD,
 )
-from app.log.logger import get_gemini_logger, get_openai_logger
+from app.log.logger import get_gemini_logger
 
-logger_openai = get_openai_logger()
 logger_gemini = get_gemini_logger()
 
 
