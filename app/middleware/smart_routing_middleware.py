@@ -55,12 +55,8 @@ class SmartRoutingMiddleware(BaseHTTPMiddleware):
             r"^/gemini/v1beta/models/[^/:]+:(generate|streamGenerate)Content$",  # Gemini带前缀
             r"^/v1beta/models$",  # Gemini模型列表
             r"^/gemini/v1beta/models$",  # Gemini带前缀的模型列表
-            r"^/v1/(chat/completions|models|embeddings|images/generations|audio/speech)$",  # v1格式
-            r"^/openai/v1/(chat/completions|models|embeddings|images/generations|audio/speech)$",  # OpenAI格式
-            r"^/hf/v1/(chat/completions|models|embeddings|images/generations|audio/speech)$",  # HF格式
             r"^/vertex-express/v1beta/models/[^/:]+:(generate|streamGenerate)Content$",  # Vertex Express Gemini格式
             r"^/vertex-express/v1beta/models$",  # Vertex Express模型列表
-            r"^/vertex-express/v1/(chat/completions|models|embeddings|images/generations)$",  # Vertex Express OpenAI格式
         ]
 
         for pattern in correct_patterns:
