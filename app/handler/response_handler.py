@@ -80,7 +80,7 @@ def _extract_result(
             else:
                 text = ""
             text = _add_search_link_text(model, candidate, text)
-            tool_calls = _extract_tool_calls(parts, gemini_format)
+            tool_calls = _extract_tool_calls(parts)
     else:
         if response.get("candidates"):
             candidate = response["candidates"][0]
