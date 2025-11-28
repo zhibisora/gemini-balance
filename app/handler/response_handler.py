@@ -48,7 +48,6 @@ def _extract_result(
     response: Dict[str, Any],
     model: str,
     stream: bool = False,
-    gemini_format: bool = False,
 ) -> tuple[str, Optional[str], List[Dict[str, Any]], Optional[bool]]:
     text, reasoning_content, tool_calls, thought = "", "", [], None
 
