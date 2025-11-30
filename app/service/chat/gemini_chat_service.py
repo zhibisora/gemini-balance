@@ -503,6 +503,11 @@ class GeminiChatService:
                     f"Key ...{api_key[-4:]} passed rate limit check for model {model}."
                 )
                 break
+            except RequestTooLargeError as e:
+                logger.error(
+                    f"请求因Token数量过大而被拒绝，不再尝试其他密钥: {e.detail}"
+                )
+                raise e
             except RateLimitExceededError as e:
                 logger.warning(
                     f"Key ...{api_key[-4:]} is rate-limited for model {model}: {e}. Trying next key."
