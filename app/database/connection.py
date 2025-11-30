@@ -14,19 +14,10 @@ from app.log.logger import Logger
 logger = Logger.setup_logger("database")
 
 # 数据库URL
-if settings.DATABASE_TYPE == "sqlite":
-    # 确保 data 目录存在
-    data_dir = Path("data")
-    data_dir.mkdir(exist_ok=True)
-    db_path = data_dir / settings.SQLITE_DATABASE
-    DATABASE_URL = f"sqlite+aiosqlite:///{db_path}"
-elif settings.DATABASE_TYPE == "postgres":
-    DATABASE_URL = (
-        f"postgresql+asyncpg://{settings.POSTGRES_USER}:{quote_plus(settings.POSTGRES_PASSWORD)}"
-        f"@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
-    )
-else:
-    raise ValueError("Unsupported database type. Please set DATABASE_TYPE to 'sqlite' or 'postgres'.")
+DATABASE_URL = (
+    f"postgresql+asyncpg://{settings.POSTGRES_USER}:{quote_plus(settings.POSTGRES_PASSWORD)}"
+    f"@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
+)
 
 # 创建数据库引擎
 # pool_pre_ping=True: 在从连接池获取连接前执行简单的 "ping" 测试，确保连接有效
