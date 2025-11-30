@@ -491,7 +491,7 @@ async def verify_key(
                     f"Verification exception for key: {redact_key_for_logging(api_key)}, incrementing failure count"
                 )
 
-        return JSONResponse({"status": "invalid", "error": e.args[1]})
+        return JSONResponse({"status": "invalid", "error": str(e)})
 
 
 @router.post("/verify-selected-keys")
