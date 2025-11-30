@@ -8,9 +8,9 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
 from app.config.config import settings
-from app.log.logger import get_gemini_logger
+from app.log.logger import Logger
 
-logger = get_gemini_logger()
+logger = Logger.setup_logger("gemini")
 
 
 class ResponseHandler(ABC):
