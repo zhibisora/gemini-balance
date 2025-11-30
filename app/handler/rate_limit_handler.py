@@ -235,6 +235,18 @@ class IndividualKeyRateLimiter:
             )
 
             # --- 执行检查 ---
+            # TPM 检查 (单次请求过大)
+            if "tpm" in limits and tokens_to_use > limits["tpm"]:
+                message = (
+                    f"请求的Token数量 ({tokens_to_use}) 超过了单个密钥在模型 '{model_name}' 上的每分钟Token限制 ({limits['tpm']})。"
+                    " 请减少请求内容的长度或调整配置。"
+                )
+                logger.warning(
+                    f"单次请求Token过大: 模型='{model_name}', 密钥='{redact_key_for_logging(api_key)}'. "
+                    f"详情: {message}"
+                )
+                raise RequestTooLargeError(message)
+
             # RPM 检查
             if "rpm" in limits and usage["rpm_count"] >= limits["rpm"]:
                 time_to_wait = (usage["rpm_window_start"] + 60) - now
