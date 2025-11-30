@@ -1328,52 +1328,6 @@ endblock %} {% block head_extra_styles %}
           </div>
         </div>
 
-        <!-- 思考模型列表 -->
-        <div class="mb-6">
-          <label for="THINKING_MODELS" class="block font-semibold mb-2 text-gray-700">思考模型列表
-            <i class="fas fa-question-circle text-gray-400 ml-1 cursor-help" title="用于思考过程的模型列表"></i>
-          </label>
-          <div class="array-container" id="THINKING_MODELS_container">
-            <!-- 数组项将在这里动态添加 -->
-          </div>
-          <div class="flex justify-end gap-2 mt-2">
-            <button type="button" title="从列表选择模型添加到下方"
-              class="model-helper-trigger-btn p-2 rounded-md text-violet-300 hover:bg-violet-700 transition-colors"
-              data-target-array-key="THINKING_MODELS">
-              <i class="fas fa-list-ul"></i>
-            </button>
-            <button type="button"
-              class="bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2"
-              onclick="addArrayItem('THINKING_MODELS')">
-              <i class="fas fa-plus"></i> 添加模型
-            </button>
-          </div>
-        </div>
-
-        <!-- 思考模型预算映射 -->
-        <div class="mb-6">
-          <label for="THINKING_BUDGET_MAP" class="block font-semibold mb-2 text-gray-700">思考模型预算映射
-            <i class="fas fa-question-circle text-gray-400 ml-1 cursor-help"
-              title="为每个思考模型设置预算（-1为auto，最大值32767），此项与上方模型列表自动关联"></i>
-          </label>
-          <div class="bg-white rounded-lg border border-gray-200 p-4 mb-2 space-y-3" id="THINKING_BUDGET_MAP_container"
-            style="
-              background-color: rgba(255, 255, 255, 0.95);
-              border: 1px solid rgba(0, 0, 0, 0.12);
-              color: #374151;
-            ">
-            <!-- 键值对将在这里动态添加 -->
-            <div class="text-gray-500 text-sm italic">
-              请先在上方添加思考模型，然后在此处配置预算。
-            </div>
-          </div>
-          <!-- 移除添加预算映射按钮 -->
-          <!-- <div class="flex justify-end">
-                            <button type="button" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2" id="addBudgetMapItemBtn">
-                                <i class="fas fa-plus"></i> 添加预算映射
-                            </button>
-                        </div> -->
-        </div>
         <!-- 安全设置 -->
         <div class="mb-6">
           <label for="SAFETY_SETTINGS" class="block font-semibold mb-2 text-gray-700">安全设置 (Safety Settings)
