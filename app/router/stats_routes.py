@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from starlette import status
 from app.core.security import verify_auth_token
 from app.service.stats.stats_service import StatsService
-from app.log.logger import get_stats_logger
+from app.log.logger import Logger
 from app.utils.helpers import redact_key_for_logging
 
-logger = get_stats_logger()
+logger = Logger.setup_logger("stats")
 
 
 async def verify_token(request: Request):
