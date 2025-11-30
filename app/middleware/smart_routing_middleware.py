@@ -82,40 +82,18 @@ class SmartRoutingMiddleware(BaseHTTPMiddleware):
         # 检测是否为流式请求
         is_stream = self.detect_stream_request(path, request)
 
-        # 检查是否有vertex-express偏好
-        if "/vertex-express/" in path.lower():
-            if is_stream:
-                target_url = (
-                    f"/vertex-express/v1beta/models/{model_name}:streamGenerateContent"
-                )
-            else:
-                target_url = (
-                    f"/vertex-express/v1beta/models/{model_name}:generateContent"
-                )
-
-            fix_info = {
-                "rule": (
-                    "vertex_express_generate"
-                    if not is_stream
-                    else "vertex_express_stream"
-                ),
-                "preference": "vertex_express_format",
-                "is_stream": is_stream,
-                "model": model_name,
-            }
+        # 标准Gemini端点
+        if is_stream:
+            target_url = f"/v1beta/models/{model_name}:streamGenerateContent"
         else:
-            # 标准Gemini端点
-            if is_stream:
-                target_url = f"/v1beta/models/{model_name}:streamGenerateContent"
-            else:
-                target_url = f"/v1beta/models/{model_name}:generateContent"
+            target_url = f"/v1beta/models/{model_name}:generateContent"
 
-            fix_info = {
-                "rule": "gemini_generate" if not is_stream else "gemini_stream",
-                "preference": "gemini_format",
-                "is_stream": is_stream,
-                "model": model_name,
-            }
+        fix_info = {
+            "rule": "gemini_generate" if not is_stream else "gemini_stream",
+            "preference": "gemini_format",
+            "is_stream": is_stream,
+            "model": model_name,
+        }
 
         return target_url, fix_info
 
