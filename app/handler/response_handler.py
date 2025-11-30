@@ -216,16 +216,14 @@ def _handle_gemini_normal_response(
     if not is_image_upload_configured(settings) and _has_inline_image_part(response):
         return response
 
-    text, reasoning_content, tool_calls, thought = _extract_result(
-        response, model, stream=stream
-    )
+    text, tool_calls, thought = _extract_result(response, model, stream=stream)
     parts = []
     if tool_calls:
         parts = tool_calls
     else:
-        if thought is not None:
-            parts.append({"text": reasoning_content, "thought": thought})
         part = {"text": text}
+        if thought is not None:
+            part["thought"] = thought
         parts.append(part)
     content = {"parts": parts, "role": "model"}
     response["candidates"][0]["content"] = content
