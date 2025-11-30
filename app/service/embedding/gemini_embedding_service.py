@@ -146,9 +146,15 @@ class GeminiEmbeddingService:
             status_code = 200
         except Exception as e:
             is_success = False
-            status_code = e.args[0]
-            error_log_msg = e.args[1]
-            logger.error(f"Batch embedding API call failed: {error_log_msg}")
+            if isinstance(e, HTTPException):
+                status_code = e.status_code
+                error_log_msg = e.detail
+            else:
+                # Fallback for other exception types
+                status_code = getattr(e, "status_code", 500)
+                error_log_msg = str(e)
+
+            logger.error(f"Batch embedding API call failed: {status_code} - {error_log_msg}")
             await add_error_log(
                 gemini_key=api_key,
                 model_name=model,
