@@ -59,8 +59,6 @@ class Settings(BaseSettings):
     TEST_MODEL: str = DEFAULT_MODEL
     TIME_OUT: int = DEFAULT_TIMEOUT
     MAX_RETRIES: int = MAX_RETRIES
-    PROXIES: List[str] = []
-    PROXIES_USE_CONSISTENCY_HASH_BY_API_KEY: bool = True  # 是否使用一致性哈希来选择代理
 
     # 智能路由配置
     URL_NORMALIZATION_ENABLED: bool = False  # 是否启用智能路由映射功能
