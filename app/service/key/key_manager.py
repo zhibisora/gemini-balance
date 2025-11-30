@@ -73,22 +73,9 @@ class KeyManager:
         else:
             return ""
 
-    async def handle_vertex_api_failure(self, api_key: str, retries: int) -> str:
-        """处理 Vertex Express API 调用失败"""
-        async with self.vertex_failure_count_lock:
-            self.vertex_key_failure_counts[api_key] += 1
-            if self.vertex_key_failure_counts[api_key] >= self.MAX_FAILURES:
-                logger.warning(
-                    f"Vertex Express API key {redact_key_for_logging(api_key)} has failed {self.MAX_FAILURES} times"
-                )
-
     def get_fail_count(self, key: str) -> int:
         """获取指定密钥的失败次数"""
         return self.key_failure_counts.get(key, 0)
-
-    def get_vertex_fail_count(self, key: str) -> int:
-        """获取指定 Vertex 密钥的失败次数"""
-        return self.vertex_key_failure_counts.get(key, 0)
 
     async def get_all_keys_with_fail_count(self) -> dict:
         """获取所有API key及其失败次数"""
