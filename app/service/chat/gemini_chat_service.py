@@ -388,9 +388,15 @@ class GeminiChatService:
             # API调用失败，释放该密钥的预留资源
             await key_rate_limiter.release(model, api_key, estimated_tokens)
             is_success = False
-            status_code = e.args[0]
-            error_log_msg = e.args[1]
-            logger.error(f"Normal API call failed with error: {error_log_msg}")
+            if isinstance(e, HTTPException):
+                status_code = e.status_code
+                error_log_msg = e.detail
+            else:
+                # Fallback for other exception types
+                status_code = getattr(e, "status_code", 500)
+                error_log_msg = str(e)
+
+            logger.error(f"Normal API call failed with error: {status_code} - {error_log_msg}")
 
             await add_error_log(
                 gemini_key=api_key,
