@@ -140,16 +140,11 @@ class KeyManager:
 _singleton_instance = None
 _singleton_lock = asyncio.Lock()
 _preserved_failure_counts: Union[Dict[str, int], None] = None
-_preserved_vertex_failure_counts: Union[Dict[str, int], None] = None
 _preserved_old_api_keys_for_reset: Union[list, None] = None
-_preserved_vertex_old_api_keys_for_reset: Union[list, None] = None
 _preserved_next_key_in_cycle: Union[str, None] = None
-_preserved_vertex_next_key_in_cycle: Union[str, None] = None
 
 
-async def get_key_manager_instance(
-    api_keys: list = None, vertex_api_keys: list = None
-) -> KeyManager:
+async def get_key_manager_instance(api_keys: list = None) -> KeyManager:
     """
     获取 KeyManager 单例实例。
 
