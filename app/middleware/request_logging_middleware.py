@@ -3,9 +3,9 @@ import json
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from app.log.logger import get_request_logger
+from app.log.logger import Logger
 
-logger = get_request_logger()
+logger = Logger.setup_logger("request")
 
 
 # 添加中间件类
