@@ -82,48 +82,6 @@ def format_json_response(data: Dict[str, Any], indent: int = 2) -> str:
     return json.dumps(data, indent=indent, ensure_ascii=False)
 
 
-def parse_prompt_parameters(
-    prompt: str, default_ratio: str = "1:1"
-) -> Tuple[str, int, str]:
-    """
-    从prompt中解析参数
-
-    支持的格式:
-    - {n:数量} 例如: {n:2} 生成2张图片
-    - {ratio:比例} 例如: {ratio:16:9} 使用16:9比例
-
-    Args:
-        prompt: 提示文本
-        default_ratio: 默认比例
-
-    Returns:
-        tuple: (清理后的提示文本, 图片数量, 比例)
-    """
-    # 默认值
-    n = 1
-    aspect_ratio = default_ratio
-
-    # 解析n参数
-    n_match = re.search(r"{n:(\d+)}", prompt)
-    if n_match:
-        n = int(n_match.group(1))
-        if n < 1 or n > 4:
-            raise ValueError(f"Invalid n value: {n}. Must be between 1 and 4.")
-        prompt = prompt.replace(n_match.group(0), "").strip()
-
-    # 解析ratio参数
-    ratio_match = re.search(r"{ratio:(\d+:\d+)}", prompt)
-    if ratio_match:
-        aspect_ratio = ratio_match.group(1)
-        if aspect_ratio not in VALID_IMAGE_RATIOS:
-            raise ValueError(
-                f"Invalid ratio: {aspect_ratio}. Must be one of: {', '.join(VALID_IMAGE_RATIOS)}"
-            )
-        prompt = prompt.replace(ratio_match.group(0), "").strip()
-
-    return prompt, n, aspect_ratio
-
-
 def extract_image_urls_from_markdown(text: str) -> List[str]:
     """
     从Markdown文本中提取图片URL
