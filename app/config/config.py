@@ -72,7 +72,6 @@ class Settings(BaseSettings):
     AUTO_DELETE_ERROR_LOGS_DAYS: int = 7
     AUTO_DELETE_REQUEST_LOGS_ENABLED: bool = False
     AUTO_DELETE_REQUEST_LOGS_DAYS: int = 30
-    SAFETY_SETTINGS: List[Dict[str, str]] = DEFAULT_SAFETY_SETTINGS
 
     # Admin Session Configuration
     ADMIN_SESSION_EXPIRE: int = Field(
