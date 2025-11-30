@@ -18,12 +18,12 @@ from fastapi import (
 from pydantic import BaseModel
 
 from app.core.security import verify_auth_token
-from app.log.logger import get_log_routes_logger
+from app.log.logger import Logger
 from app.service.error_log import error_log_service
 
 router = APIRouter(prefix="/api/logs", tags=["logs"])
 
-logger = get_log_routes_logger()
+logger = Logger.setup_logger("log_routes")
 
 
 class ErrorLogListItem(BaseModel):
