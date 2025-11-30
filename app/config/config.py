@@ -23,8 +23,6 @@ from app.log.logger import Logger
 
 class Settings(BaseSettings):
     # 数据库配置
-    DATABASE_TYPE: str = "postgres"  # sqlite 或 postgres
-    SQLITE_DATABASE: str = "default_db"
     POSTGRES_HOST: str = ""
     POSTGRES_PORT: int = 5432
     POSTGRES_USER: str = ""
