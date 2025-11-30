@@ -7,9 +7,9 @@ from sqlalchemy import and_, case, func, or_, select
 
 from app.database.connection import database
 from app.database.models import RequestLog
-from app.log.logger import get_stats_logger
+from app.log.logger import Logger
 
-logger = get_stats_logger()
+logger = Logger.setup_logger("stats")
 
 
 class StatsService:
