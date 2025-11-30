@@ -3,11 +3,11 @@ from functools import wraps
 from typing import Callable, TypeVar
 
 from app.config.config import settings
-from app.log.logger import get_retry_logger
+from app.log.logger import Logger
 from app.utils.helpers import redact_key_for_logging
 
 T = TypeVar("T")
-logger = get_retry_logger()
+logger = Logger.setup_logger("retry")
 
 
 class RetryHandler:
