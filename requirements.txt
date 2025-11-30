@@ -11,7 +11,6 @@ jinja2
 python-multipart
 cryptography
 sqlalchemy
-aiosqlite
 databases
 python-dotenv
 apscheduler
