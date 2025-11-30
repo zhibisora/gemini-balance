@@ -16,7 +16,7 @@ from app.scheduler.scheduled_tasks import start_scheduler, stop_scheduler
 from app.service.key.key_manager import get_key_manager_instance
 from app.utils.helpers import get_current_version
 
-logger = get_application_logger()()
+logger = get_application_logger()
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 STATIC_DIR = PROJECT_ROOT / "app" / "static"
