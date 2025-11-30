@@ -21,14 +21,6 @@ DEFAULT_FILTER_MODELS = [
     "text-bison-001",
     "embedding-gecko-001",
 ]
-DEFAULT_CREATE_IMAGE_MODEL = "imagen-3.0-generate-002"
-
-# 图像生成相关常量
-VALID_IMAGE_RATIOS = ["1:1", "3:4", "4:3", "9:16", "16:9"]
-
-# 上传提供商
-UPLOAD_PROVIDERS = ["smms", "picgo", "cloudflare_imgbed", "aliyun_oss"]
-DEFAULT_UPLOAD_PROVIDER = "smms"
 
 # 正则表达式模式
 IMAGE_URL_PATTERN = r"!\[(.*?)\]\((.*?)\)"
