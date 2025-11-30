@@ -158,19 +158,6 @@ def _build_tools(model: str, payload: Dict[str, Any]) -> List[Dict[str, Any]]:
 
     return [tool] if tool else []
 
-
-def _get_real_model(model: str) -> str:
-    if model.endswith("-search"):
-        model = model[:-7]
-    if model.endswith("-image"):
-        model = model[:-6]
-    if model.endswith("-non-thinking"):
-        model = model[:-13]
-    if "-search" in model and "-non-thinking" in model:
-        model = model[:-20]
-    return model
-
-
 def _filter_empty_parts(contents: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """Filters out contents with empty or invalid parts."""
     if not contents:
