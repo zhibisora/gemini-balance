@@ -11,9 +11,9 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from app.middleware.smart_routing_middleware import SmartRoutingMiddleware
 from app.core.constants import API_VERSION
 from app.core.security import verify_auth_token
-from app.log.logger import get_middleware_logger
+from app.log.logger import Logger
 
-logger = get_middleware_logger()
+logger = Logger.setup_logger("middleware")
 
 
 class AuthMiddleware(BaseHTTPMiddleware):
