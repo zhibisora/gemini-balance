@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 from typing import Any, AsyncGenerator, Dict, Optional
 
 import httpx
+from fastapi import HTTPException
 
 from app.config.config import settings
 from app.core.constants import DEFAULT_TIMEOUT
