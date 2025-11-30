@@ -259,20 +259,14 @@ async def reset_key_manager_instance():
     将保存当前实例的状态（失败计数、旧 API keys、下一个 key 提示）
     以供下一次 get_key_manager_instance 调用时恢复。
     """
-    global _singleton_instance, _preserved_failure_counts, _preserved_vertex_failure_counts, _preserved_old_api_keys_for_reset, _preserved_vertex_old_api_keys_for_reset, _preserved_next_key_in_cycle, _preserved_vertex_next_key_in_cycle
+    global _singleton_instance, _preserved_failure_counts, _preserved_old_api_keys_for_reset, _preserved_next_key_in_cycle
     async with _singleton_lock:
         if _singleton_instance:
             # 1. 保存失败计数
             _preserved_failure_counts = _singleton_instance.key_failure_counts.copy()
-            _preserved_vertex_failure_counts = (
-                _singleton_instance.vertex_key_failure_counts.copy()
-            )
 
             # 2. 保存旧的 API keys 列表
             _preserved_old_api_keys_for_reset = _singleton_instance.api_keys.copy()
-            _preserved_vertex_old_api_keys_for_reset = (
-                _singleton_instance.vertex_api_keys.copy()
-            )
 
             # 3. 保存 key_cycle 的下一个 key 提示
             try:
