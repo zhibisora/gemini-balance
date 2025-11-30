@@ -2,8 +2,7 @@
 数据库初始化模块
 """
 from dotenv import dotenv_values
-from sqlalchemy import insert, select
-from sqlalchemy.inspection import async_inspect
+from sqlalchemy import insert, select, inspect
 
 from app.database.connection import Base, database, engine
 from app.database.models import Settings
