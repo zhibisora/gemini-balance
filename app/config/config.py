@@ -23,24 +23,23 @@ from app.log.logger import Logger
 
 class Settings(BaseSettings):
     # 数据库配置
-    DATABASE_TYPE: str = "mysql"  # sqlite 或 mysql
+    DATABASE_TYPE: str = "postgres"  # sqlite 或 postgres
     SQLITE_DATABASE: str = "default_db"
-    MYSQL_HOST: str = ""
-    MYSQL_PORT: int = 3306
-    MYSQL_USER: str = ""
-    MYSQL_PASSWORD: str = ""
-    MYSQL_DATABASE: str = ""
-    MYSQL_SOCKET: str = ""
+    POSTGRES_HOST: str = ""
+    POSTGRES_PORT: int = 5432
+    POSTGRES_USER: str = ""
+    POSTGRES_PASSWORD: str = ""
+    POSTGRES_DB: str = ""
 
     # 验证 MySQL 配置
     @field_validator(
-        "MYSQL_HOST", "MYSQL_PORT", "MYSQL_USER", "MYSQL_PASSWORD", "MYSQL_DATABASE"
+        "POSTGRES_HOST", "POSTGRES_PORT", "POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_DB"
     )
-    def validate_mysql_config(cls, v: Any, info: ValidationInfo) -> Any:
-        if info.data.get("DATABASE_TYPE") == "mysql":
+    def validate_postgres_config(cls, v: Any, info: ValidationInfo) -> Any:
+        if info.data.get("DATABASE_TYPE") == "postgres":
             if v is None or v == "":
                 raise ValueError(
-                    "MySQL configuration is required when DATABASE_TYPE is 'mysql'"
+                    "PostgreSQL configuration is required when DATABASE_TYPE is 'postgres'"
                 )
         return v
 
