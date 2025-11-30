@@ -14,13 +14,6 @@ DEFAULT_TEMPERATURE = 0.7
 DEFAULT_MAX_TOKENS = 8192
 DEFAULT_TOP_P = 0.9
 DEFAULT_TOP_K = 40
-DEFAULT_FILTER_MODELS = [
-    "gemini-1.0-pro-vision-latest",
-    "gemini-pro-vision",
-    "chat-bison-001",
-    "text-bison-001",
-    "embedding-gecko-001",
-]
 
 # 正则表达式模式
 IMAGE_URL_PATTERN = r"!\[(.*?)\]\((.*?)\)"
