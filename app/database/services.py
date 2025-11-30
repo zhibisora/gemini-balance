@@ -11,10 +11,10 @@ from sqlalchemy import asc, delete, desc, func, insert, select, update
 
 from app.database.connection import database
 from app.database.models import ErrorLog, RequestLog, Settings
-from app.log.logger import get_database_logger
+from app.log.logger import Logger
 from app.utils.helpers import redact_key_for_logging
 
-logger = get_database_logger()
+logger = Logger.setup_logger("database")
 
 
 async def get_all_settings() -> List[Dict[str, Any]]:
