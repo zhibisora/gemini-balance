@@ -31,11 +31,12 @@ Base = declarative_base(metadata=metadata)
 
 # 创建数据库连接池，并配置连接池参数，在sqlite中不使用连接池
 # min_size/max_size: 连接池的最小/最大连接数
-# pool_recycle=3600: 连接在池中允许存在的最大秒数（生命周期）。
-#                    设置为 3600 秒（1小时），确保在 MySQL 默认的 wait_timeout (通常8小时) 或其他网络超时之前回收连接。
-#                    如果遇到连接失效问题，可以尝试调低此值，使其小于实际的 wait_timeout 或网络超时时间。
+# max_inactive_connection_lifetime=1800: 非活动连接在池中保持的最长秒数。
+#                    设置为 1800 秒（30分钟），以回收空闲连接并防止网络问题导致的连接失效。
 # databases 库会自动处理连接失效后的重连尝试。
-database = Database(DATABASE_URL, min_size=5, max_size=20, pool_recycle=1800)
+database = Database(
+    DATABASE_URL, min_size=5, max_size=20, max_inactive_connection_lifetime=1800
+)
 
 async def connect_to_db():
     """
