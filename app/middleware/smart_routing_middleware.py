@@ -1,10 +1,10 @@
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from app.config.config import settings
-from app.log.logger import get_main_logger
+from app.log.logger import Logger
 import re
 
-logger = get_main_logger()
+logger = Logger.setup_logger("main")
 
 class SmartRoutingMiddleware(BaseHTTPMiddleware):
     def __init__(self, app):
