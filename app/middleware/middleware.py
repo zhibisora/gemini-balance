@@ -31,7 +31,6 @@ class AuthMiddleware(BaseHTTPMiddleware):
             and not request.url.path.startswith("/health")
             and not request.url.path.startswith("/hf")
             and not request.url.path.startswith("/api/version/check")
-            and not request.url.path.startswith("/vertex-express")
             and not request.url.path.startswith("/upload")
         ):
 
