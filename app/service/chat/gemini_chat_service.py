@@ -255,23 +255,6 @@ def _build_payload(model: str, request: GeminiRequest) -> Dict[str, Any]:
     if client_thinking_config is not None:
         # 客户端提供了思考配置，直接使用
         payload["generationConfig"]["thinkingConfig"] = client_thinking_config
-    else:
-        # 客户端没有提供思考配置，使用默认配置
-        if model.endswith("-non-thinking"):
-            if "gemini-2.5-pro" in model:
-                payload["generationConfig"]["thinkingConfig"] = {"thinkingBudget": 128}
-            else:
-                payload["generationConfig"]["thinkingConfig"] = {"thinkingBudget": 0}
-        elif _get_real_model(model) in settings.THINKING_BUDGET_MAP:
-            if settings.SHOW_THINKING_PROCESS:
-                payload["generationConfig"]["thinkingConfig"] = {
-                    "thinkingBudget": settings.THINKING_BUDGET_MAP.get(model, 1000),
-                    "includeThoughts": True,
-                }
-            else:
-                payload["generationConfig"]["thinkingConfig"] = {
-                    "thinkingBudget": settings.THINKING_BUDGET_MAP.get(model, 1000)
-                }
 
     return payload
 
