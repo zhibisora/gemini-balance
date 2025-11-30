@@ -348,44 +348,9 @@ class GeminiChatService:
         payload = _build_payload(model, request)
         estimated_tokens = estimate_payload_tokens(payload)
 
-        # --- 寻找一个未被速率限制的可用密钥 ---
-        number_of_keys = len(self.key_manager.api_keys)
-        if number_of_keys == 0:
-            raise HTTPException(status_code=500, detail="No API keys configured.")
-
-        tried_keys = set()
-        for _ in range(number_of_keys):
-            if api_key in tried_keys:
-                break
-            tried_keys.add(api_key)
-
-            try:
-                await key_rate_limiter.check_and_reserve(
-                    model, api_key, estimated_tokens
-                )
-                logger.debug(
-                    f"Key ...{api_key[-4:]} passed rate limit check for model {model}."
-                )
-                break  # 找到可用密钥，跳出循环
-            except RequestTooLargeError as e:
-                logger.error(
-                    f"请求因Token数量过大而被拒绝，不再尝试其他密钥: {e.detail}"
-                )
-                raise e
-            except RateLimitExceededError as e:
-                logger.warning(
-                    f"Key ...{api_key[-4:]} is rate-limited for model {model}: {e}. Trying next key."
-                )
-                api_key = await self.key_manager.get_next_working_key()
-                continue
-        else:  # for-else 循环，如果没有 break 则执行
-            # 如果循环完成（意味着所有密钥都已尝试过且均被限速），则抛出429错误
-            raise RateLimitExceededError(
-                "All API keys are currently rate-limited for this model. Please try again later."
-            )
-
-        # 全局TPM速率限制：预留
-        await rate_limiter.reserve_tokens(model, estimated_tokens)
+        api_key = await self._select_key_and_apply_rate_limits(
+            model, estimated_tokens, api_key
+        )
 
         start_time = time.perf_counter()
         request_datetime = datetime.datetime.now()
