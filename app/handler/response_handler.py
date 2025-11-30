@@ -110,7 +110,7 @@ def _extract_result(
             logger.warning(f"No candidates found in response for model: {model}")
             text = "暂无返回"
 
-    return text, reasoning_content, tool_calls, thought
+    return text, tool_calls, thought
 
 
 def _has_inline_image_part(response: Dict[str, Any]) -> bool:
