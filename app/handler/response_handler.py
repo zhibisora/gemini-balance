@@ -123,49 +123,10 @@ def _has_inline_image_part(response: Dict[str, Any]) -> bool:
 
 
 def _extract_image_data(part: dict) -> str:
-    image_uploader = None
-    if settings.UPLOAD_PROVIDER == "smms":
-        image_uploader = ImageUploaderFactory.create(
-            provider=settings.UPLOAD_PROVIDER, api_key=settings.SMMS_SECRET_TOKEN
-        )
-    elif settings.UPLOAD_PROVIDER == "picgo":
-        image_uploader = ImageUploaderFactory.create(
-            provider=settings.UPLOAD_PROVIDER, 
-            api_key=settings.PICGO_API_KEY,
-            api_url=settings.PICGO_API_URL
-        )
-    elif settings.UPLOAD_PROVIDER == "cloudflare_imgbed":
-        image_uploader = ImageUploaderFactory.create(
-            provider=settings.UPLOAD_PROVIDER,
-            base_url=settings.CLOUDFLARE_IMGBED_URL,
-            auth_code=settings.CLOUDFLARE_IMGBED_AUTH_CODE,
-            upload_folder=settings.CLOUDFLARE_IMGBED_UPLOAD_FOLDER,
-        )
-    elif settings.UPLOAD_PROVIDER == "aliyun_oss":
-        image_uploader = ImageUploaderFactory.create(
-            provider=settings.UPLOAD_PROVIDER,
-            access_key=settings.OSS_ACCESS_KEY,
-            access_key_secret=settings.OSS_ACCESS_KEY_SECRET,
-            bucket_name=settings.OSS_BUCKET_NAME,
-            endpoint=settings.OSS_ENDPOINT,
-            region=settings.OSS_REGION,
-            use_internal=False
-        )
-    current_date = time.strftime("%Y/%m/%d")
-    filename = f"{current_date}/{uuid.uuid4().hex[:8]}.png"
+    """始终将内联图像数据格式化为base64数据URL"""
     base64_data = part["inlineData"]["data"]
     mime_type = part["inlineData"]["mimeType"]
-    # 将base64_data转成bytes数组
-    # Return empty string if no uploader is configured
-    if not is_image_upload_configured(settings):
-        return f"\n\n![image](data:{mime_type};base64,{base64_data})\n\n"
-    bytes_data = base64.b64decode(base64_data)
-    upload_response = image_uploader.upload(bytes_data, filename)
-    if upload_response.success:
-        text = f"\n\n![image]({upload_response.data.url})\n\n"
-    else:
-        text = f"\n\n![image](data:{mime_type};base64,{base64_data})\n\n"
-    return text
+    return f"\n\n![image](data:{mime_type};base64,{base64_data})\n\n"
 
 
 def _extract_tool_calls(
