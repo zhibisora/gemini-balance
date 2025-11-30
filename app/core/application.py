@@ -42,7 +42,7 @@ async def _setup_database_and_config(app_settings):
     logger.info("Database initialized successfully")
     await connect_to_db()
     await sync_initial_settings()
-    await get_key_manager_instance(app_settings.API_KEYS, app_settings.VERTEX_API_KEYS)
+    await get_key_manager_instance(app_settings.API_KEYS)
     logger.info("Database, config sync, and KeyManager initialized successfully")
 
 
