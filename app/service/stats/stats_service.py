@@ -18,7 +18,7 @@ class StatsService:
     async def get_calls_in_last_seconds(self, seconds: int) -> dict[str, int]:
         """获取过去 N 秒内的调用次数 (总数、成功、失败)"""
         try:
-            cutoff_time = datetime.datetime.now() - datetime.timedelta(seconds=seconds)
+            cutoff_time = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=seconds)
             query = select(
                 func.count(RequestLog.id).label("total"),
                 func.count(RequestLog.id)
