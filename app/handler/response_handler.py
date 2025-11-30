@@ -197,9 +197,7 @@ def _handle_gemini_stream_response(
     if not is_image_upload_configured(settings) and _has_inline_image_part(response):
         return response
 
-    text, reasoning_content, tool_calls, thought = _extract_result(
-        response, model, stream=stream
-    )
+    text, tool_calls, thought = _extract_result(response, model, stream=stream)
     if tool_calls:
         content = {"parts": tool_calls, "role": "model"}
     else:
