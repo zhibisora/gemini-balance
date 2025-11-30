@@ -1,10 +1,10 @@
 from typing import Any, Dict, Optional
 
 from app.config.config import settings
-from app.log.logger import get_model_logger
+from app.log.logger import Logger
 from app.service.client.api_client import GeminiApiClient
 
-logger = get_model_logger()
+logger = Logger.setup_logger("model")
 
 
 class ModelService:
