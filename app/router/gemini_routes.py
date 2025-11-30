@@ -154,7 +154,6 @@ async def generate_content(
 
 
 @router.post("/models/{model_name}:streamGenerateContent")
-@router_v1beta.post("/models/{model_name}:streamGenerateContent")
 @RetryHandler(key_arg="api_key")
 async def stream_generate_content(
     model_name: str,
