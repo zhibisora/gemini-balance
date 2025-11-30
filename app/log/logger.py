@@ -287,10 +287,6 @@ def get_request_log_logger():
     return Logger.setup_logger("request_log")
 
 
-def get_vertex_express_logger():
-    return Logger.setup_logger("vertex_express")
-
-
 def get_gemini_embedding_logger():
     return Logger.setup_logger("gemini_embedding")
 
