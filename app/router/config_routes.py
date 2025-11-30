@@ -9,13 +9,13 @@ from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field
 
 from app.core.security import verify_auth_token
-from app.log.logger import Logger, get_config_routes_logger
+from app.log.logger import Logger
 from app.service.config.config_service import ConfigService
 from app.utils.helpers import redact_key_for_logging
 
 router = APIRouter(prefix="/api/config", tags=["config"])
 
-logger = get_config_routes_logger()
+logger = Logger.setup_logger("config_routes")
 
 
 @router.get("", response_model=Dict[str, Any])
