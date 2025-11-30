@@ -49,13 +49,6 @@ class Settings(BaseSettings):
     # 自定义 Headers
     CUSTOM_HEADERS: Dict[str, str] = {}
 
-    # 模型相关配置
-    TOOLS_CODE_EXECUTION_ENABLED: bool = False
-    # 是否启用网址上下文
-    URL_CONTEXT_ENABLED: bool = False
-    SHOW_SEARCH_LINK: bool = True
-    SHOW_THINKING_PROCESS: bool = True
-
     # 模型TPM（每分钟Token数）限制配置 (JSON string)
     # e.g., '{"gemini-2.5-pro": 60000}'
     MODEL_TPM_LIMITS: str = "{}"
