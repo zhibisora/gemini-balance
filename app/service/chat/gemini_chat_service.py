@@ -155,8 +155,6 @@ def _build_tools(model: str, payload: Dict[str, Any]) -> List[Dict[str, Any]]:
         payload.get("contents", [])
     ):
         tool.pop("googleSearch", None)
-        tool.pop("codeExecution", None)
-        tool.pop("urlContext", None)
 
     return [tool] if tool else []
 
