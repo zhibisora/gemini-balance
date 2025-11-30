@@ -87,24 +87,6 @@ class Settings(BaseSettings):
     # e.g., '{"gemini-1.5-pro-latest": {"rpm": 5, "tpm": 100000, "rpd": 1000}}'
     MODEL_KEY_LIMITS: str = "{}"
 
-    # 图像生成相关配置
-    PAID_KEY: str = ""
-    CREATE_IMAGE_MODEL: str = DEFAULT_CREATE_IMAGE_MODEL
-    UPLOAD_PROVIDER: str = "smms"
-    SMMS_SECRET_TOKEN: str = ""
-    PICGO_API_KEY: str = ""
-    PICGO_API_URL: str = "https://www.picgo.net/api/1/upload"
-    CLOUDFLARE_IMGBED_URL: str = ""
-    CLOUDFLARE_IMGBED_AUTH_CODE: str = ""
-    CLOUDFLARE_IMGBED_UPLOAD_FOLDER: str = ""
-    # 阿里云OSS配置
-    OSS_ENDPOINT: str = ""
-    OSS_ENDPOINT_INNER: str = ""
-    OSS_ACCESS_KEY: str = ""
-    OSS_ACCESS_KEY_SECRET: str = ""
-    OSS_BUCKET_NAME: str = ""
-    OSS_REGION: str = ""
-
     # 调度器配置
     CHECK_INTERVAL_HOURS: int = 1  # 默认检查间隔为1小时
     TIMEZONE: str = "Asia/Shanghai"  # 默认时区
