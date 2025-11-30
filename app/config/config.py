@@ -93,11 +93,6 @@ class Settings(BaseSettings):
     # e.g., '{"gemini-1.5-pro-latest": {"rpm": 5, "tpm": 100000, "rpd": 1000}}'
     MODEL_KEY_LIMITS: str = "{}"
 
-    # TTS相关配置
-    TTS_MODEL: str = "gemini-2.5-flash-preview-tts"
-    TTS_VOICE_NAME: str = "Zephyr"
-    TTS_SPEED: str = "normal"
-
     # 图像生成相关配置
     PAID_KEY: str = ""
     CREATE_IMAGE_MODEL: str = DEFAULT_CREATE_IMAGE_MODEL
