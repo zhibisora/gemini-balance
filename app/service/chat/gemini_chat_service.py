@@ -171,13 +171,6 @@ def _get_real_model(model: str) -> str:
     return model
 
 
-def _get_safety_settings(model: str) -> List[Dict[str, str]]:
-    """获取安全设置"""
-    if model == "gemini-2.0-flash-exp":
-        return GEMINI_2_FLASH_EXP_SAFETY_SETTINGS
-    return settings.SAFETY_SETTINGS
-
-
 def _filter_empty_parts(contents: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """Filters out contents with empty or invalid parts."""
     if not contents:
