@@ -35,7 +35,7 @@ async def import_env_to_settings():
         env_values = dotenv_values(".env")
 
         # 获取检查器
-        inspector = await async_inspect(engine)
+        inspector = inspect(engine)
 
         # 检查t_settings表是否存在
         if await inspector.has_table("t_settings"):
