@@ -48,8 +48,8 @@ def _extract_result(
     response: Dict[str, Any],
     model: str,
     stream: bool = False,
-) -> tuple[str, Optional[str], List[Dict[str, Any]], Optional[bool]]:
-    text, reasoning_content, tool_calls, thought = "", "", [], None
+) -> tuple[str, List[Dict[str, Any]], Optional[bool]]:
+    text, tool_calls, thought = "", [], None
 
     if stream:
         if response.get("candidates"):
@@ -58,14 +58,11 @@ def _extract_result(
             parts = content.get("parts", [])
             if not parts:
                 logger.warning("No parts found in stream response")
-                return "", None, [], None
+                return "", [], None
 
             if "text" in parts[0]:
                 text = parts[0].get("text")
                 if "thought" in parts[0]:
-                    if not gemini_format and settings.SHOW_THINKING_PROCESS:
-                        reasoning_content = text
-                        text = ""
                     thought = parts[0].get("thought")
             elif "executableCode" in parts[0]:
                 text = _format_code_block(parts[0]["executableCode"])
