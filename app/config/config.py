@@ -258,9 +258,7 @@ async def sync_initial_settings():
     2. 将数据库设置合并到内存 settings (数据库优先)。
     3. 将最终的内存 settings 同步回数据库。
     """
-    from app.log.logger import get_config_logger
-
-    logger = get_config_logger()
+    logger = Logger.setup_logger("config")
     # 延迟导入以避免循环依赖和确保数据库连接已初始化
     from app.database.connection import database
     from app.database.models import Settings as SettingsModel
