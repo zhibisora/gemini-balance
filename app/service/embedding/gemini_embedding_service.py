@@ -15,7 +15,7 @@ from app.database.services import add_error_log, add_request_log
 from app.domain.gemini_models import GeminiBatchEmbedRequest, GeminiEmbedRequest
 from fastapi import HTTPException
 from app.handler.rate_limit_handler import rate_limiter
-from app.log.logger import get_gemini_embedding_logger
+from app.log.logger import Logger
 from app.service.client.api_client import GeminiApiClient
 from app.service.key.key_manager import KeyManager
 from app.utils.helpers import (
