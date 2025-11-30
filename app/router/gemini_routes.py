@@ -17,7 +17,7 @@ from app.domain.gemini_models import (
 )
 from app.handler.error_handler import handle_route_errors
 from app.handler.retry_handler import RetryHandler
-from app.log.logger import get_gemini_logger
+from app.log.logger import Logger
 from app.service.chat.gemini_chat_service import GeminiChatService
 from app.service.embedding.gemini_embedding_service import GeminiEmbeddingService
 from app.service.key.key_manager import KeyManager, get_key_manager_instance
@@ -25,7 +25,7 @@ from app.service.model.model_service import ModelService
 from app.utils.helpers import redact_key_for_logging
 
 router = APIRouter()
-logger = get_gemini_logger()
+logger = Logger.setup_logger("gemini")
 
 security_service = SecurityService()
 model_service = ModelService()
