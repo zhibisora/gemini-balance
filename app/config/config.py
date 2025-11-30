@@ -12,7 +12,6 @@ from sqlalchemy import insert, select, update
 
 from app.core.constants import (
     API_VERSION,
-    DEFAULT_FILTER_MODELS,
     DEFAULT_MODEL,
     DEFAULT_SAFETY_SETTINGS,
     DEFAULT_TIMEOUT,
