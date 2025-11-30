@@ -81,21 +81,17 @@ def _extract_result(
     else:
         if response.get("candidates"):
             candidate = response["candidates"][0]
-            text, reasoning_content = "", ""
+            text = ""
 
             # 使用安全的访问方式
             content = candidate.get("content", {})
 
             if content and isinstance(content, dict):
                 parts = content.get("parts", [])
-
                 if parts:
                     for part in parts:
                         if "text" in part:
-                            if "thought" in part and settings.SHOW_THINKING_PROCESS:
-                                reasoning_content += part["text"]
-                            else:
-                                text += part["text"]
+                            text += part["text"]
                             if "thought" in part and thought is None:
                                 thought = part.get("thought")
                         elif "inlineData" in part:
