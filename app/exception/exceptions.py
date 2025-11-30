@@ -83,6 +83,13 @@ class RateLimitExceededError(HTTPException):
         super().__init__(status_code=429, detail=message)
 
 
+class RequestTooLargeError(RateLimitExceededError):
+    """当单次请求的Token数超过限制时抛出。"""
+
+    def __init__(self, message: str):
+        super().__init__(message=message)
+
+
 def setup_exception_handlers(app: FastAPI) -> None:
     """
     设置应用程序的异常处理器
