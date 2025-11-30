@@ -23,7 +23,7 @@ from app.utils.helpers import (
     get_actual_tokens_from_response,
 )
 
-logger = get_gemini_embedding_logger()
+logger = Logger.setup_logger("gemini_embedding")
 
 
 def _build_embed_payload(request: GeminiEmbedRequest) -> Dict[str, Any]:
