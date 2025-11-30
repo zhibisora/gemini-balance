@@ -76,38 +76,8 @@ async def list_models(
                 status_code=500, detail="Failed to fetch base models list."
             )
 
-        models_json = deepcopy(models_data)
-        model_mapping = {
-            x.get("name", "").split("/", maxsplit=1)[-1]: x
-            for x in models_json.get("models", [])
-        }
-
-        def add_derived_model(base_name, suffix, display_suffix):
-            model = model_mapping.get(base_name)
-            if not model:
-                logger.warning(
-                    f"Base model '{base_name}' not found for derived model '{suffix}'."
-                )
-                return
-            item = deepcopy(model)
-            item["name"] = f"models/{base_name}{suffix}"
-            display_name = f'{item.get("displayName", base_name)}{display_suffix}'
-            item["displayName"] = display_name
-            item["description"] = display_name
-            models_json["models"].append(item)
-
-        if settings.SEARCH_MODELS:
-            for name in settings.SEARCH_MODELS:
-                add_derived_model(name, "-search", " For Search")
-        if settings.IMAGE_MODELS:
-            for name in settings.IMAGE_MODELS:
-                add_derived_model(name, "-image", " For Image")
-        if settings.THINKING_MODELS:
-            for name in settings.THINKING_MODELS:
-                add_derived_model(name, "-non-thinking", " Non Thinking")
-
         logger.info("Gemini models list request successful")
-        return models_json
+        return models_data
     except HTTPException as http_exc:
         raise http_exc
     except Exception as e:
