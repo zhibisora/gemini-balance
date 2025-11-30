@@ -7,6 +7,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from app.config.config import settings
+from app.core.constants import API_VERSION
 from app.core.security import verify_auth_token
 from app.log.logger import get_routes_logger
 from app.router import (
