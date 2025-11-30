@@ -4,10 +4,10 @@ from itertools import cycle
 from typing import Dict, Union
 
 from app.config.config import settings
-from app.log.logger import get_key_manager_logger
+from app.log.logger import Logger
 from app.utils.helpers import redact_key_for_logging
 
-logger = get_key_manager_logger()
+logger = Logger.setup_logger("key_manager")
 
 
 class KeyManager:
