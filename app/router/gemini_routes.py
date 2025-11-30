@@ -222,11 +222,23 @@ async def stream_generate_content(
         except StopAsyncIteration:
             # 如果流直接结束，退回标准 SSE 输出
             return StreamingResponse(raw_stream, media_type="text/event-stream")
-        except Exception as e:
-            # 初始化流异常，直接返回 500 错误
+        except HTTPException as exc:
+            # 捕获已知的HTTP异常 (例如 429 RateLimitExceededError) 并正确返回
+            logger.warning(
+                f"Stream initiation failed with HTTPException: {exc.status_code} - {exc.detail}"
+            )
             return JSONResponse(
-                content={"error": {"code": e.args[0], "message": e.args[1]}},
-                status_code=e.args[0],
+                content={"error": {"code": exc.status_code, "message": exc.detail}},
+                status_code=exc.status_code,
+            )
+        except Exception as e:
+            # 捕获其他未知异常，记录并返回标准500错误
+            logger.error(
+                f"Unexpected error during stream initiation: {str(e)}", exc_info=True
+            )
+            return JSONResponse(
+                content={"error": {"code": 500, "message": "Internal Server Error"}},
+                status_code=500,
             )
 
         # 如果以 "data:" 开头，代表正常 SSE，将首块和后续块一起发送
