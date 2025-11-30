@@ -520,7 +520,7 @@ async def add_request_log(
         bool: 是否添加成功
     """
     try:
-        log_time = request_time if request_time else datetime.now()
+        log_time = request_time if request_time else datetime.datetime.now(datetime.timezone.utc)
 
         query = insert(RequestLog).values(
             request_time=log_time,
