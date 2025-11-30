@@ -163,7 +163,7 @@ class GeminiApiClient(ApiClient):
             response = await client.post(url, json=payload, headers=headers)
             if response.status_code != 200:
                 error_content = response.text
-                raise Exception(response.status_code, error_content)
+                raise HTTPException(status_code=response.status_code, detail=error_content)
             return response.json()
 
     async def embed_content(
