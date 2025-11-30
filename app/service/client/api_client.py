@@ -190,7 +190,7 @@ class GeminiApiClient(ApiClient):
                 logger.error(
                     f"Embedding API call failed - Status: {response.status_code}, Content: {error_content}"
                 )
-                raise Exception(response.status_code, error_content)
+                raise HTTPException(status_code=response.status_code, detail=error_content)
             return response.json()
 
     async def batch_embed_contents(
