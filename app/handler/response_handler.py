@@ -97,8 +97,6 @@ def _extract_result(
             else:
                 logger.error(f"Invalid content structure for model: {model}")
 
-            text = _add_search_link_text(model, candidate, text)
-
             # 安全地获取 parts 用于工具调用提取
             parts = candidate.get("content", {}).get("parts", [])
             tool_calls = _extract_tool_calls(parts)
