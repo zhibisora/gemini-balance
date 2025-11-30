@@ -248,7 +248,7 @@ class StatsService:
         logger.info(
             f"Fetching usage details for key ending in ...{key[-4:]} for the last 24h."
         )
-        cutoff_time = datetime.datetime.now() - datetime.timedelta(hours=24)
+        cutoff_time = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=24)
 
         try:
             query = (
