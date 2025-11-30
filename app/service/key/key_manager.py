@@ -11,34 +11,18 @@ logger = get_key_manager_logger()
 
 
 class KeyManager:
-    def __init__(self, api_keys: list, vertex_api_keys: list):
+    def __init__(self, api_keys: list):
         self.api_keys = api_keys
-        self.vertex_api_keys = vertex_api_keys
         self.key_cycle = cycle(api_keys)
-        self.vertex_key_cycle = cycle(vertex_api_keys)
         self.key_cycle_lock = asyncio.Lock()
-        self.vertex_key_cycle_lock = asyncio.Lock()
         self.failure_count_lock = asyncio.Lock()
-        self.vertex_failure_count_lock = asyncio.Lock()
         self.key_failure_counts: Dict[str, int] = {key: 0 for key in api_keys}
-        self.vertex_key_failure_counts: Dict[str, int] = {
-            key: 0 for key in vertex_api_keys
-        }
         self.MAX_FAILURES = settings.MAX_FAILURES
-        self.paid_key = settings.PAID_KEY
-
-    async def get_paid_key(self) -> str:
-        return self.paid_key
 
     async def get_next_key(self) -> str:
         """获取下一个API key"""
         async with self.key_cycle_lock:
             return next(self.key_cycle)
-
-    async def get_next_vertex_key(self) -> str:
-        """获取下一个 Vertex Express API key"""
-        async with self.vertex_key_cycle_lock:
-            return next(self.vertex_key_cycle)
 
     async def is_key_valid(self, key: str) -> bool:
         """检查key是否有效"""
