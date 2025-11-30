@@ -9,9 +9,9 @@ from fastapi import HTTPException
 
 from app.config.config import settings
 from app.core.constants import DEFAULT_TIMEOUT
-from app.log.logger import get_api_client_logger
+from app.log.logger import Logger
 
-logger = get_api_client_logger()
+logger = Logger.setup_logger("api_client")
 
 
 class ApiClient(ABC):
