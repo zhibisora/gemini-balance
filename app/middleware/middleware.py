@@ -8,7 +8,6 @@ from fastapi.responses import RedirectResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
 # from app.middleware.request_logging_middleware import RequestLoggingMiddleware
-from app.middleware.smart_routing_middleware import SmartRoutingMiddleware
 from app.core.constants import API_VERSION
 from app.core.security import verify_auth_token
 from app.log.logger import Logger
