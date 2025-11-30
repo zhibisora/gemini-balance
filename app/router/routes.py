@@ -22,7 +22,7 @@ from app.service.key.key_manager import get_key_manager_instance
 from app.service.stats.stats_service import StatsService
 from app.utils.static_version import get_static_url
 
-logger = get_routes_logger()
+logger = Logger.setup_logger("routes")
 
 templates = Jinja2Templates(directory="app/templates")
 # 设置模板全局变量
