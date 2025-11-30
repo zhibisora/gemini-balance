@@ -231,7 +231,7 @@ class IndividualKeyRateLimiter:
                 logger.debug(f"天级速率限制窗口已为密钥 ...{api_key[-4:]} 在模型 {model_name} 上重置")
 
             logger.debug(
-                f"Rate limit check: model='{model_name}', key='{redact_key_for_logging(api_key)}', requested_tokens={tokens_to_use}"
+                f"速率限制检查: 模型='{model_name}', 密钥='{redact_key_for_logging(api_key)}', 请求Token数={tokens_to_use}"
             )
 
             # --- 执行检查 ---
@@ -239,9 +239,9 @@ class IndividualKeyRateLimiter:
             if "rpm" in limits and usage["rpm_count"] >= limits["rpm"]:
                 time_to_wait = (usage["rpm_window_start"] + 60) - now
                 logger.warning(
-                    f"RPM limit triggered for model '{model_name}' on key '{redact_key_for_logging(api_key)}'. "
-                    f"Count: {usage['rpm_count']}, Limit: {limits['rpm']}. "
-                    f"Window resets in {time_to_wait:.2f}s."
+                    f"RPM 限制触发: 模型='{model_name}', 密钥='{redact_key_for_logging(api_key)}'. "
+                    f"计数值: {usage['rpm_count']}, 限制值: {limits['rpm']}. "
+                    f"窗口将在 {time_to_wait:.2f}秒 后重置."
                 )
                 raise RateLimitExceededError(
                     f"RPM 限制 ({limits['rpm']}) 已在模型 '{model_name}' 上达到。 "
@@ -252,9 +252,9 @@ class IndividualKeyRateLimiter:
             if "tpm" in limits and usage["tpm_count"] + tokens_to_use > limits["tpm"]:
                 time_to_wait = (usage["rpm_window_start"] + 60) - now
                 logger.warning(
-                    f"TPM limit triggered for model '{model_name}' on key '{redact_key_for_logging(api_key)}'. "
-                    f"Current Tokens: {usage['tpm_count']}, Requested Tokens: {tokens_to_use}, Limit: {limits['tpm']}. "
-                    f"Window resets in {time_to_wait:.2f}s."
+                    f"TPM 限制触发: 模型='{model_name}', 密钥='{redact_key_for_logging(api_key)}'. "
+                    f"当前Token数: {usage['tpm_count']}, 请求Token数: {tokens_to_use}, 限制值: {limits['tpm']}. "
+                    f"窗口将在 {time_to_wait:.2f}秒 后重置."
                 )
                 raise RateLimitExceededError(
                     f"TPM 限制 ({limits['tpm']}) 将在模型 '{model_name}' 上超出。 "
@@ -267,9 +267,9 @@ class IndividualKeyRateLimiter:
                 midnight = tomorrow.replace(hour=0, minute=0, second=0, microsecond=0)
                 time_to_wait_seconds = (midnight - datetime.now()).total_seconds()
                 logger.warning(
-                    f"RPD limit triggered for model '{model_name}' on key '{redact_key_for_logging(api_key)}'. "
-                    f"Count: {usage['rpd_count']}, Limit: {limits['rpd']}. "
-                    f"Window resets in {time_to_wait_seconds / 3600:.2f} hours."
+                    f"RPD 限制触发: 模型='{model_name}', 密钥='{redact_key_for_logging(api_key)}'. "
+                    f"计数值: {usage['rpd_count']}, 限制值: {limits['rpd']}. "
+                    f"窗口将在 {time_to_wait_seconds / 3600:.2f}小时 后重置."
                 )
                 raise RateLimitExceededError(
                     f"RPD 限制 ({limits['rpd']}) 已在模型 '{model_name}' 上达到。 "
