@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import requests
 
 from app.config.config import Settings
-from app.core.constants import DATA_URL_PATTERN, IMAGE_URL_PATTERN, VALID_IMAGE_RATIOS
+from app.core.constants import DATA_URL_PATTERN, IMAGE_URL_PATTERN
 
 helper_logger = logging.getLogger("app.utils")
 
