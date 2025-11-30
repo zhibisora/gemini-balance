@@ -38,8 +38,8 @@ class GeminiResponseHandler(ResponseHandler):
         usage_metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         if stream:
-            return _handle_gemini_stream_response(response, model, stream)
-        return _handle_gemini_normal_response(response, model, stream)
+            return _handle_gemini_stream_response(response, model)
+        return _handle_gemini_normal_response(response, model)
 
 
 def _extract_result(
