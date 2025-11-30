@@ -184,28 +184,6 @@ def _format_code_block(code_data: dict) -> str:
     return f"""\n\n---\n\n【代码执行】\n```{language}\n{code}\n```\n"""
 
 
-def _add_search_link_text(model: str, candidate: dict, text: str) -> str:
-    if (
-        settings.SHOW_SEARCH_LINK
-        and model.endswith("-search")
-        and "groundingMetadata" in candidate
-        and "groundingChunks" in candidate["groundingMetadata"]
-    ):
-        grounding_chunks = candidate["groundingMetadata"]["groundingChunks"]
-        text += "\n\n---\n\n"
-        text += "**【引用来源】**\n\n"
-        for _, grounding_chunk in enumerate(grounding_chunks, 1):
-            if "web" in grounding_chunk:
-                text += _create_search_link(grounding_chunk["web"])
-        return text
-    else:
-        return text
-
-
-def _create_search_link(grounding_chunk: dict) -> str:
-    return f'\n- [{grounding_chunk["title"]}]({grounding_chunk["uri"]})'
-
-
 def _format_execution_result(result_data: dict) -> str:
     """格式化执行结果输出"""
     outcome = result_data.get("outcome", "")
