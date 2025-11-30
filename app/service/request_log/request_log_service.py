@@ -9,9 +9,9 @@ from sqlalchemy import delete
 from app.config.config import settings
 from app.database.connection import database
 from app.database.models import RequestLog
-from app.log.logger import get_request_log_logger
+from app.log.logger import Logger
 
-logger = get_request_log_logger()
+logger = Logger.setup_logger("request_log")
 
 
 async def delete_old_request_logs_task():
