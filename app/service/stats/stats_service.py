@@ -21,31 +21,12 @@ class StatsService:
             cutoff_time = datetime.datetime.now() - datetime.timedelta(seconds=seconds)
             query = select(
                 func.count(RequestLog.id).label("total"),
-                func.sum(
-                    case(
-                        (
-                            and_(
-                                RequestLog.status_code >= 200,
-                                RequestLog.status_code < 300,
-                            ),
-                            1,
-                        ),
-                        else_=0,
-                    )
-                ).label("success"),
-                func.sum(
-                    case(
-                        (
-                            or_(
-                                RequestLog.status_code < 200,
-                                RequestLog.status_code >= 300,
-                            ),
-                            1,
-                        ),
-                        (RequestLog.status_code is None, 1),
-                        else_=0,
-                    )
-                ).label("failure"),
+                func.count(RequestLog.id)
+                .filter(RequestLog.is_success == True)
+                .label("success"),
+                func.count(RequestLog.id)
+                .filter(RequestLog.is_success == False)
+                .label("failure"),
             ).where(RequestLog.request_time >= cutoff_time)
             result = await database.fetch_one(query)
             if result:
@@ -76,31 +57,12 @@ class StatsService:
             )
             query = select(
                 func.count(RequestLog.id).label("total"),
-                func.sum(
-                    case(
-                        (
-                            and_(
-                                RequestLog.status_code >= 200,
-                                RequestLog.status_code < 300,
-                            ),
-                            1,
-                        ),
-                        else_=0,
-                    )
-                ).label("success"),
-                func.sum(
-                    case(
-                        (
-                            or_(
-                                RequestLog.status_code < 200,
-                                RequestLog.status_code >= 300,
-                            ),
-                            1,
-                        ),
-                        (RequestLog.status_code is None, 1),
-                        else_=0,
-                    )
-                ).label("failure"),
+                func.count(RequestLog.id)
+                .filter(RequestLog.is_success == True)
+                .label("success"),
+                func.count(RequestLog.id)
+                .filter(RequestLog.is_success == False)
+                .label("failure"),
             ).where(RequestLog.request_time >= start_of_month)
             result = await database.fetch_one(query)
             if result:

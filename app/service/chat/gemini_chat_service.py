@@ -353,7 +353,7 @@ class GeminiChatService:
         )
 
         start_time = time.perf_counter()
-        request_datetime = datetime.datetime.now()
+        request_datetime = datetime.datetime.now(datetime.timezone.utc)
         is_success = False
         status_code = None
         response = None
@@ -427,7 +427,7 @@ class GeminiChatService:
             "contents": _filter_empty_parts(request.model_dump().get("contents", []))
         }
         start_time = time.perf_counter()
-        request_datetime = datetime.datetime.now()
+        request_datetime = datetime.datetime.now(datetime.timezone.utc)
         is_success = False
         status_code = None
         response = None

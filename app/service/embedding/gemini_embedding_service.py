@@ -72,7 +72,7 @@ class GeminiEmbeddingService:
         await rate_limiter.reserve_tokens(model, estimated_tokens)
 
         start_time = time.perf_counter()
-        request_datetime = datetime.datetime.now()
+        request_datetime = datetime.datetime.now(datetime.timezone.utc)
         is_success = False
         status_code = None
         response = None
@@ -132,7 +132,7 @@ class GeminiEmbeddingService:
         await rate_limiter.reserve_tokens(model, estimated_tokens)
 
         start_time = time.perf_counter()
-        request_datetime = datetime.datetime.now()
+        request_datetime = datetime.datetime.now(datetime.timezone.utc)
         is_success = False
         status_code = None
         response = None
