@@ -9,14 +9,14 @@ from app.config.config import settings, sync_initial_settings
 from app.database.connection import connect_to_db, disconnect_from_db
 from app.database.initialization import initialize_database
 from app.exception.exceptions import setup_exception_handlers
-from app.log.logger import get_application_logger, setup_access_logging
+from app.log.logger import Logger, setup_access_logging
 from app.middleware.middleware import setup_middlewares
 from app.router.routes import setup_routers
 from app.scheduler.scheduled_tasks import start_scheduler, stop_scheduler
 from app.service.key.key_manager import get_key_manager_instance
 from app.utils.helpers import get_current_version
 
-logger = get_application_logger()
+logger = Logger.setup_logger("application")
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 STATIC_DIR = PROJECT_ROOT / "app" / "static"
