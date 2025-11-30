@@ -147,19 +147,8 @@ def _build_tools(model: str, payload: Dict[str, Any]) -> List[Dict[str, Any]]:
     # 当请求指定了JSON响应格式时，跳过所有工具的添加以避免API错误
     has_structured_output = _is_structured_output_request(payload)
     if not has_structured_output:
-        if (
-            settings.TOOLS_CODE_EXECUTION_ENABLED
-            and not (model.endswith("-search") or "-thinking" in model)
-            and not _has_image_parts(payload.get("contents", []))
-        ):
-            tool["codeExecution"] = {}
-
         if model.endswith("-search"):
             tool["googleSearch"] = {}
-
-        real_model = _get_real_model(model)
-        if settings.URL_CONTEXT_ENABLED:
-            tool["urlContext"] = {}
 
     # 解决 "Tool use with function calling is unsupported" 问题
     if tool.get("functionDeclarations") or _has_function_call(
