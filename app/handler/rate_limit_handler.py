@@ -5,7 +5,7 @@ import time
 from typing import Any, Dict
 
 from app.config.config import settings
-from app.exception.exceptions import RateLimitExceededError
+from app.exception.exceptions import RateLimitExceededError, RequestTooLargeError
 from app.log.logger import get_main_logger
 from app.utils.helpers import redact_key_for_logging
 
