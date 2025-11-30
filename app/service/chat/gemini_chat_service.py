@@ -284,30 +284,6 @@ class GeminiChatService:
         self.key_manager = key_manager
         self.response_handler = GeminiResponseHandler()
 
-    def _extract_text_from_response(self, response: Dict[str, Any]) -> str:
-        """从响应中提取文本内容"""
-        if not response.get("candidates"):
-            return ""
-
-        candidate = response["candidates"][0]
-        content = candidate.get("content", {})
-        parts = content.get("parts", [])
-
-        if parts and "text" in parts[0]:
-            return parts[0].get("text", "")
-        return ""
-
-    def _create_char_response(
-        self, original_response: Dict[str, Any], text: str
-    ) -> Dict[str, Any]:
-        """创建包含指定文本的响应"""
-        response_copy = json.loads(json.dumps(original_response))
-        if response_copy.get("candidates") and response_copy["candidates"][0].get(
-            "content", {}
-        ).get("parts"):
-            response_copy["candidates"][0]["content"]["parts"][0]["text"] = text
-        return response_copy
-
     async def generate_content(
         self, model: str, request: GeminiRequest, api_key: str
     ) -> Dict[str, Any]:
