@@ -220,7 +220,6 @@ async def stream_generate_content(
 
 
 @router.post("/models/{model_name}:countTokens")
-@router_v1beta.post("/models/{model_name}:countTokens")
 @RetryHandler(key_arg="api_key")
 async def count_tokens(
     model_name: str,
