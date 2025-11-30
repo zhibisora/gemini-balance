@@ -124,9 +124,7 @@ settings = Settings()
 
 def _parse_db_value(key: str, db_value: str, target_type: Type) -> Any:
     """尝试将数据库字符串值解析为目标 Python 类型"""
-    from app.log.logger import get_config_logger
-
-    logger = get_config_logger()
+    logger = Logger.setup_logger("config")
     try:
         origin_type = get_origin(target_type)
         args = get_args(target_type)
