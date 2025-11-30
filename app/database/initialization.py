@@ -8,9 +8,9 @@ from sqlalchemy.orm import Session
 
 from app.database.connection import engine, Base
 from app.database.models import Settings
-from app.log.logger import get_database_logger
+from app.log.logger import Logger
 
-logger = get_database_logger()
+logger = Logger.setup_logger("database")
 
 
 def create_tables():
