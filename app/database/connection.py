@@ -8,9 +8,9 @@ from sqlalchemy import create_engine, MetaData
 from sqlalchemy.ext.declarative import declarative_base
 
 from app.config.config import settings
-from app.log.logger import get_database_logger
+from app.log.logger import Logger
 
-logger = get_database_logger()
+logger = Logger.setup_logger("database")
 
 # 数据库URL
 if settings.DATABASE_TYPE == "sqlite":
