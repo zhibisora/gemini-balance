@@ -11,9 +11,9 @@ from app.core.constants import (
     DEFAULT_STREAM_MIN_DELAY,
     DEFAULT_STREAM_SHORT_TEXT_THRESHOLD,
 )
-from app.log.logger import get_gemini_logger
+from app.log.logger import Logger
 
-logger_gemini = get_gemini_logger()
+logger_gemini = Logger.setup_logger("gemini")
 
 
 class StreamOptimizer:
