@@ -161,34 +161,6 @@ def get_current_version(default_version: str = "0.0.0") -> str:
         return default_version
 
 
-def is_image_upload_configured(settings: Settings) -> bool:
-    """Return True only if a valid upload provider is selected and all required settings for that provider are present."""
-
-    provider = (getattr(settings, "UPLOAD_PROVIDER", "") or "").strip().lower()
-    if provider == "smms":
-        return bool(getattr(settings, "SMMS_SECRET_TOKEN", ""))
-    if provider == "picgo":
-        return bool(getattr(settings, "PICGO_API_KEY", ""))
-    if provider == "aliyun_oss":
-        return all(
-            [
-                getattr(settings, "OSS_ACCESS_KEY", ""),
-                getattr(settings, "OSS_ACCESS_KEY_SECRET", ""),
-                getattr(settings, "OSS_BUCKET_NAME", ""),
-                getattr(settings, "OSS_ENDPOINT", ""),
-                getattr(settings, "OSS_REGION", "")
-            ]
-        )
-    if provider == "cloudflare_imgbed":
-        return all(
-            [
-                getattr(settings, "CLOUDFLARE_IMGBED_URL", ""),
-                getattr(settings, "CLOUDFLARE_IMGBED_AUTH_CODE", ""),
-            ]
-        )
-    return False
-
-
 def estimate_payload_tokens(payload: Dict[str, Any]) -> int:
     """
     估算请求负载的token数。
