@@ -202,7 +202,7 @@ class StatsService:
         Returns: [{"key": str, "count": int, "status_code": int}, ...] 按次数降序
         """
         try:
-            now = datetime.datetime.now()
+            now = datetime.datetime.now(datetime.timezone.utc)
             start_time = now - datetime.timedelta(hours=24)
             if not include_keys:
                 return []
