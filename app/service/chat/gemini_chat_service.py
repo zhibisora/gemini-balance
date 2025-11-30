@@ -284,6 +284,63 @@ class GeminiChatService:
         self.key_manager = key_manager
         self.response_handler = GeminiResponseHandler()
 
+    async def _select_key_and_apply_rate_limits(
+        self, model: str, estimated_tokens: int, initial_api_key: str
+    ) -> str:
+        """
+        选择一个可用的API密钥，检查其独立速率限制，然后预留全局TPM限制的令牌。
+        返回选定的密钥。
+        如果超出限制，则引发 RateLimitExceededError 或 RequestTooLargeError。
+        """
+        number_of_keys = len(self.key_manager.api_keys)
+        if number_of_keys == 0:
+            raise HTTPException(status_code=500, detail="No API keys configured.")
+
+        api_key = initial_api_key
+        tried_keys = set()
+        # 循环次数等于可用密钥数量，以确保每个密钥最多尝试一次
+        for _ in range(number_of_keys):
+            if api_key in tried_keys:
+                api_key = await self.key_manager.get_next_working_key()
+                continue  # 跳过以检查新获取的密钥
+
+            tried_keys.add(api_key)
+
+            try:
+                # 检查单个密钥的速率限制
+                await key_rate_limiter.check_and_reserve(
+                    model, api_key, estimated_tokens
+                )
+                logger.debug(
+                    f"Key ...{api_key[-4:]} passed individual rate limit check for model {model}."
+                )
+
+                # 检查并预留全局TPM速率限制
+                await rate_limiter.reserve_tokens(model, estimated_tokens)
+                logger.debug(f"Global TPM rate limit passed for model {model}.")
+
+                # 如果两个检查都通过，我们找到了一个有效的密钥
+                return api_key
+
+            except RequestTooLargeError as e:
+                # 如果请求太大，尝试其他密钥也无济于事。快速失败。
+                logger.error(
+                    f"Request rejected due to excessive tokens ({estimated_tokens}), not trying other keys: {e.detail}"
+                )
+                raise e
+            except RateLimitExceededError as e:
+                # 此密钥受到速率限制，记录并尝试下一个。
+                logger.warning(
+                    f"Key ...{api_key[-4:]} is rate-limited for model {model}: {e}. Trying next key."
+                )
+                api_key = await self.key_manager.get_next_working_key()
+                continue
+
+        # 如果循环完成而没有返回，则表示所有密钥都已尝试过且均受到速率限制。
+        raise RateLimitExceededError(
+            "All available API keys are currently rate-limited for this model. Please try again later."
+        )
+
     async def generate_content(
         self, model: str, request: GeminiRequest, api_key: str
     ) -> Dict[str, Any]:
