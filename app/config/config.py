@@ -119,10 +119,6 @@ class Settings(BaseSettings):
     STREAM_LONG_TEXT_THRESHOLD: int = DEFAULT_STREAM_LONG_TEXT_THRESHOLD
     STREAM_CHUNK_SIZE: int = DEFAULT_STREAM_CHUNK_SIZE
 
-    # 假流式配置 (Fake Streaming Configuration)
-    FAKE_STREAM_ENABLED: bool = False  # 是否启用假流式输出
-    FAKE_STREAM_EMPTY_DATA_INTERVAL_SECONDS: int = 5  # 假流式发送空数据的间隔时间（秒）
-
     # 调度器配置
     CHECK_INTERVAL_HOURS: int = 1  # 默认检查间隔为1小时
     TIMEZONE: str = "Asia/Shanghai"  # 默认时区
