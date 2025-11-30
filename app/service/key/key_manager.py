@@ -285,23 +285,6 @@ async def reset_key_manager_instance():
                 logger.error(f"Error preserving next key hint during reset: {e}")
                 _preserved_next_key_in_cycle = None
 
-            # 4. 保存 vertex_key_cycle 的下一个 key 提示
-            try:
-                if _singleton_instance.vertex_api_keys:
-                    _preserved_vertex_next_key_in_cycle = (
-                        await _singleton_instance.get_next_vertex_key()
-                    )
-                else:
-                    _preserved_vertex_next_key_in_cycle = None
-            except StopIteration:
-                logger.warning(
-                    "Could not preserve next key hint: Vertex key cycle was empty or exhausted in old instance."
-                )
-                _preserved_vertex_next_key_in_cycle = None
-            except Exception as e:
-                logger.error(f"Error preserving next key hint during reset: {e}")
-                _preserved_vertex_next_key_in_cycle = None
-
             _singleton_instance = None
             logger.info(
                 "KeyManager instance has been reset. State (failure counts, old keys, next key hint) preserved for next instantiation."
