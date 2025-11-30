@@ -162,7 +162,7 @@ def _build_tools(model: str, payload: Dict[str, Any]) -> List[Dict[str, Any]]:
             tool["googleSearch"] = {}
 
         real_model = _get_real_model(model)
-        if real_model in settings.URL_CONTEXT_MODELS and settings.URL_CONTEXT_ENABLED:
+        if settings.URL_CONTEXT_ENABLED:
             tool["urlContext"] = {}
 
     # 解决 "Tool use with function calling is unsupported" 问题
