@@ -282,7 +282,6 @@ async def embed_content(
 
 
 @router.post("/models/{model_name}:batchEmbedContents")
-@router_v1beta.post("/models/{model_name}:batchEmbedContents")
 @RetryHandler(key_arg="api_key")
 async def batch_embed_contents(
     model_name: str,
