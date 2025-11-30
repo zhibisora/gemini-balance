@@ -33,11 +33,13 @@ async def import_env_to_settings():
         # 获取.env文件中的所有配置项
         env_values = dotenv_values(".env")
 
-        # 获取检查器
-        inspector = inspect(engine)
-
         # 检查t_settings表是否存在
-        if await inspector.has_table("t_settings"):
+        async with engine.connect() as conn:
+            table_exists = await conn.run_sync(
+                lambda sync_conn: inspect(sync_conn).has_table("t_settings")
+            )
+
+        if table_exists:
             # 获取所有现有的配置项
             query = select(Settings.key)
             existing_rows = await database.fetch_all(query)
