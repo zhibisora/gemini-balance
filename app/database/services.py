@@ -78,7 +78,7 @@ async def update_setting(
                 .values(
                     value=value,
                     description=description if description else setting["description"],
-                    updated_at=datetime.now(),
+                    updated_at=datetime.datetime.now(datetime.timezone.utc),
                 )
             )
             await database.execute(query)
@@ -90,8 +90,8 @@ async def update_setting(
                 key=key,
                 value=value,
                 description=description,
-                created_at=datetime.now(),
-                updated_at=datetime.now(),
+                created_at=datetime.datetime.now(datetime.timezone.utc),
+                updated_at=datetime.datetime.now(datetime.timezone.utc),
             )
             await database.execute(query)
             logger.info(f"Inserted setting: {key}")
