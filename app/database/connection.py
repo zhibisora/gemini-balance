@@ -4,7 +4,8 @@
 from pathlib import Path
 from urllib.parse import quote_plus
 from databases import Database
-from sqlalchemy import create_engine, MetaData
+from sqlalchemy import MetaData
+from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.ext.declarative import declarative_base
 
 from app.config.config import settings
@@ -18,7 +19,7 @@ if settings.DATABASE_TYPE == "sqlite":
     data_dir = Path("data")
     data_dir.mkdir(exist_ok=True)
     db_path = data_dir / settings.SQLITE_DATABASE
-    DATABASE_URL = f"sqlite:///{db_path}"
+    DATABASE_URL = f"sqlite+aiosqlite:///{db_path}"
 elif settings.DATABASE_TYPE == "postgres":
     DATABASE_URL = (
         f"postgresql+asyncpg://{settings.POSTGRES_USER}:{quote_plus(settings.POSTGRES_PASSWORD)}"
@@ -29,7 +30,7 @@ else:
 
 # 创建数据库引擎
 # pool_pre_ping=True: 在从连接池获取连接前执行简单的 "ping" 测试，确保连接有效
-engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+engine = create_async_engine(DATABASE_URL, pool_pre_ping=True)
 
 # 创建元数据对象
 metadata = MetaData()
