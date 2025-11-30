@@ -152,57 +152,34 @@ async def get_key_manager_instance(api_keys: list = None) -> KeyManager:
     如果已创建实例，则忽略 api_keys 参数，返回现有单例。
     如果在重置后调用，会尝试恢复之前的状态（失败计数、循环位置）。
     """
-    global _singleton_instance, _preserved_failure_counts, _preserved_vertex_failure_counts, _preserved_old_api_keys_for_reset, _preserved_vertex_old_api_keys_for_reset, _preserved_next_key_in_cycle, _preserved_vertex_next_key_in_cycle
+    global _singleton_instance, _preserved_failure_counts, _preserved_old_api_keys_for_reset, _preserved_next_key_in_cycle
 
     async with _singleton_lock:
         if _singleton_instance is None:
             if api_keys is None:
                 raise ValueError(
-                    "API keys are required to initialize or re-initialize the KeyManager instance."
-                )
-            if vertex_api_keys is None:
-                raise ValueError(
-                    "Vertex Express API keys are required to initialize or re-initialize the KeyManager instance."
+                    "API keys are required to initialize the KeyManager instance."
                 )
 
             if not api_keys:
                 logger.warning(
                     "Initializing KeyManager with an empty list of API keys."
                 )
-            if not vertex_api_keys:
-                logger.warning(
-                    "Initializing KeyManager with an empty list of Vertex Express API keys."
-                )
 
-            _singleton_instance = KeyManager(api_keys, vertex_api_keys)
+            _singleton_instance = KeyManager(api_keys)
             logger.info(
-                f"KeyManager instance created/re-created with {len(api_keys)} API keys and {len(vertex_api_keys)} Vertex Express API keys."
+                f"KeyManager instance created/re-created with {len(api_keys)} API keys."
             )
 
             # 1. 恢复失败计数
             if _preserved_failure_counts:
-                current_failure_counts = {
-                    key: 0 for key in _singleton_instance.api_keys
-                }
+                current_failure_counts = {key: 0 for key in _singleton_instance.api_keys}
                 for key, count in _preserved_failure_counts.items():
                     if key in current_failure_counts:
                         current_failure_counts[key] = count
                 _singleton_instance.key_failure_counts = current_failure_counts
                 logger.info("Inherited failure counts for applicable keys.")
             _preserved_failure_counts = None
-
-            if _preserved_vertex_failure_counts:
-                current_vertex_failure_counts = {
-                    key: 0 for key in _singleton_instance.vertex_api_keys
-                }
-                for key, count in _preserved_vertex_failure_counts.items():
-                    if key in current_vertex_failure_counts:
-                        current_vertex_failure_counts[key] = count
-                _singleton_instance.vertex_key_failure_counts = (
-                    current_vertex_failure_counts
-                )
-                logger.info("Inherited failure counts for applicable Vertex keys.")
-            _preserved_vertex_failure_counts = None
 
             # 2. 调整 key_cycle 的起始点
             start_key_for_new_cycle = None
