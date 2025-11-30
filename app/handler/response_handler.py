@@ -9,8 +9,6 @@ from typing import Any, Dict, List, Optional
 
 from app.config.config import settings
 from app.log.logger import get_gemini_logger
-from app.utils.helpers import is_image_upload_configured
-from app.utils.uploader import ImageUploaderFactory
 
 logger = get_gemini_logger()
 
