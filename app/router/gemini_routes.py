@@ -119,7 +119,6 @@ async def list_models(
 
 
 @router.post("/models/{model_name}:generateContent")
-@router_v1beta.post("/models/{model_name}:generateContent")
 @RetryHandler(key_arg="api_key")
 async def generate_content(
     model_name: str,
