@@ -515,21 +515,7 @@ class GeminiChatService:
                         response_data = self.response_handler.handle_response(
                             chunk_json, model, stream=True
                         )
-                        text = self._extract_text_from_response(response_data)
-
-                        if text and settings.STREAM_OPTIMIZER_ENABLED:
-                            async for (
-                                optimized_chunk
-                            ) in gemini_optimizer.optimize_stream_output(
-                                text,
-                                lambda t: self._create_char_response(
-                                    response_data, t
-                                ),
-                                lambda c: "data: " + json.dumps(c) + "\n\n",
-                            ):
-                                yield optimized_chunk
-                        else:
-                            yield "data: " + json.dumps(response_data) + "\n\n"
+                        yield "data: " + json.dumps(response_data) + "\n\n"
             is_success = True
             status_code = 200
         except Exception as e:
