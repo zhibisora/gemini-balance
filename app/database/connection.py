@@ -35,10 +35,7 @@ Base = declarative_base(metadata=metadata)
 #                    设置为 3600 秒（1小时），确保在 MySQL 默认的 wait_timeout (通常8小时) 或其他网络超时之前回收连接。
 #                    如果遇到连接失效问题，可以尝试调低此值，使其小于实际的 wait_timeout 或网络超时时间。
 # databases 库会自动处理连接失效后的重连尝试。
-if settings.DATABASE_TYPE == "sqlite":
-    database = Database(DATABASE_URL)
-else:
-    database = Database(DATABASE_URL, min_size=5, max_size=20, pool_recycle=1800)
+database = Database(DATABASE_URL, min_size=5, max_size=20, pool_recycle=1800)
 
 async def connect_to_db():
     """
@@ -46,7 +43,7 @@ async def connect_to_db():
     """
     try:
         await database.connect()
-        logger.info(f"Connected to {settings.DATABASE_TYPE}")
+        logger.info("Connected to PostgreSQL")
     except Exception as e:
         logger.error(f"Failed to connect to database: {str(e)}")
         raise
