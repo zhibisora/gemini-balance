@@ -456,8 +456,7 @@ async def delete_all_error_logs() -> int:
         int: 被删除的错误日志总数。
     """
     total_deleted_count = 0
-    # SQLite 对 SQL 参数数量有上限（常见为 999），IN 子句中过多参数会报错
-    # 统一使用 500，兼容 SQLite/MySQL，必要时可在配置中暴露该值
+    # 每次批量删除的数量，以避免对数据库造成过大压力
     batch_size = 200
 
     try:
