@@ -47,18 +47,6 @@ class KeyManager:
             )
             return False
 
-    async def reset_vertex_key_failure_count(self, key: str) -> bool:
-        """重置指定 Vertex key 的失败计数"""
-        async with self.vertex_failure_count_lock:
-            if key in self.vertex_key_failure_counts:
-                self.vertex_key_failure_counts[key] = 0
-                logger.info(f"Reset failure count for Vertex key: {redact_key_for_logging(key)}")
-                return True
-            logger.warning(
-                f"Attempt to reset failure count for non-existent Vertex key: {key}"
-            )
-            return False
-
     async def get_next_working_key(self) -> str:
         """获取下一可用的API key"""
         initial_key = await self.get_next_key()
