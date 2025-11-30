@@ -24,7 +24,6 @@ from app.domain.gemini_models import GeminiRequest
 from app.exception.exceptions import RateLimitExceededError, RequestTooLargeError
 from app.handler.rate_limit_handler import key_rate_limiter, rate_limiter
 from app.handler.response_handler import GeminiResponseHandler
-from app.handler.stream_optimizer import gemini_optimizer
 from app.log.logger import get_gemini_logger
 from app.service.client.api_client import GeminiApiClient
 from app.service.key.key_manager import KeyManager
