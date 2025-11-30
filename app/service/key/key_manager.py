@@ -29,22 +29,11 @@ class KeyManager:
         async with self.failure_count_lock:
             return self.key_failure_counts[key] < self.MAX_FAILURES
 
-    async def is_vertex_key_valid(self, key: str) -> bool:
-        """检查 Vertex key 是否有效"""
-        async with self.vertex_failure_count_lock:
-            return self.vertex_key_failure_counts[key] < self.MAX_FAILURES
-
     async def reset_failure_counts(self):
         """重置所有key的失败计数"""
         async with self.failure_count_lock:
             for key in self.key_failure_counts:
                 self.key_failure_counts[key] = 0
-
-    async def reset_vertex_failure_counts(self):
-        """重置所有 Vertex key 的失败计数"""
-        async with self.vertex_failure_count_lock:
-            for key in self.vertex_key_failure_counts:
-                self.vertex_key_failure_counts[key] = 0
 
     async def reset_key_failure_count(self, key: str) -> bool:
         """重置指定key的失败计数"""
