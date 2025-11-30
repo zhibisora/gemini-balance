@@ -56,7 +56,7 @@ async def list_models(
     allowed_token=Depends(security_service.verify_key_or_goog_api_key),
     key_manager: KeyManager = Depends(get_key_manager),
 ):
-    """获取可用的 Gemini 模型列表，并根据配置添加衍生模型（搜索、图像、非思考）。"""
+    """获取可用的 Gemini 模型列表。"""
     operation_name = "list_gemini_models"
     logger.info("-" * 50 + operation_name + "-" * 50)
     logger.info("Handling Gemini models list request")
