@@ -231,28 +231,14 @@ def _build_payload(model: str, request: GeminiRequest) -> Dict[str, Any]:
             if "maxOutputTokens" in request_dict["generationConfig"]:
                 request_dict["generationConfig"].pop("maxOutputTokens")
 
-    # 检查是否为TTS模型
-    is_tts_model = "tts" in model.lower()
-
-    if is_tts_model:
-        # TTS模型使用简化的payload，不包含tools和safetySettings
-        payload = {
-            "contents": _filter_empty_parts(request_dict.get("contents", [])),
-            "generationConfig": request_dict.get("generationConfig"),
-        }
-
-        # 只在有systemInstruction时才添加
-        if request_dict.get("systemInstruction"):
-            payload["systemInstruction"] = request_dict.get("systemInstruction")
-    else:
-        # 非TTS模型使用完整的payload
-        payload = {
-            "contents": _filter_empty_parts(request_dict.get("contents", [])),
-            "tools": _build_tools(model, request_dict),
-            "safetySettings": _get_safety_settings(model),
-            "generationConfig": request_dict.get("generationConfig"),
-            "systemInstruction": request_dict.get("systemInstruction"),
-        }
+    # 非TTS模型使用完整的payload
+    payload = {
+        "contents": _filter_empty_parts(request_dict.get("contents", [])),
+        "tools": _build_tools(model, request_dict),
+        "safetySettings": _get_safety_settings(model),
+        "generationConfig": request_dict.get("generationConfig"),
+        "systemInstruction": request_dict.get("systemInstruction"),
+    }
 
     # 确保 generationConfig 不为 None
     if payload["generationConfig"] is None:
