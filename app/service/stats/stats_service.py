@@ -116,7 +116,7 @@ class StatsService:
         Raises:
             ValueError: 如果 period 无效
         """
-        now = datetime.datetime.now()
+        now = datetime.datetime.now(datetime.timezone.utc)
         if period == "1m":
             start_time = now - datetime.timedelta(minutes=1)
         elif period == "1h":
