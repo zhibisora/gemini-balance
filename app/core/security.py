@@ -3,9 +3,9 @@ from typing import Optional
 from fastapi import Header, HTTPException
 
 from app.config.config import settings
-from app.log.logger import get_security_logger
+from app.log.logger import Logger
 
-logger = get_security_logger()
+logger = Logger.setup_logger("security")
 
 
 def verify_auth_token(token: str) -> bool:
