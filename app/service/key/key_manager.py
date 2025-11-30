@@ -104,20 +104,6 @@ class KeyManager:
 
         return {"valid_keys": valid_keys, "invalid_keys": invalid_keys}
 
-    async def get_vertex_keys_by_status(self) -> dict:
-        """获取分类后的 Vertex Express API key 列表，包括失败次数"""
-        valid_keys = {}
-        invalid_keys = {}
-
-        async with self.vertex_failure_count_lock:
-            for key in self.vertex_api_keys:
-                fail_count = self.vertex_key_failure_counts[key]
-                if fail_count < self.MAX_FAILURES:
-                    valid_keys[key] = fail_count
-                else:
-                    invalid_keys[key] = fail_count
-        return {"valid_keys": valid_keys, "invalid_keys": invalid_keys}
-
     async def get_first_valid_key(self) -> str:
         """获取第一个有效的API key"""
         async with self.failure_count_lock:
