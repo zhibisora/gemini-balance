@@ -357,13 +357,6 @@ async def sync_initial_settings():
         existing_db_keys = set(db_settings_map.keys())
 
         for key, value in final_memory_settings.items():
-            if key == "DATABASE_TYPE":
-                logger.debug(
-                    f"Skipping synchronization of '{key}' to database. "
-                    "This setting is controlled by environment/dotenv."
-                )
-                continue
-
             # 序列化值为字符串或 JSON 字符串
             if isinstance(value, (list, dict)):
                 db_value = json.dumps(value, ensure_ascii=False)
