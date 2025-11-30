@@ -19,25 +19,24 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
-  mysql:
-    image: mysql:8
-    container_name: gemini-balance-mysql
+  postgres:
+    image: postgres:15
+    container_name: gemini-balance-postgres
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: your_root_password
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     # ports:
-    #   - "3306:3306"
+    #   - "5432:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
-      interval: 10s # 每隔10秒检查一次
-      timeout: 5s   # 每次检查的超时时间为5秒
-      retries: 3    # 重试3次失败后标记为 unhealthy
-      start_period: 30s # 容器启动后等待30秒再开始第一次健康检查
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
   # adminer:
   #   image: adminer:latest
   #   container_name: gemini-balance-adminer
