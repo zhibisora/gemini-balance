@@ -36,8 +36,8 @@ def setup_routers(app: FastAPI) -> None:
     Args:
         app: FastAPI应用程序实例
     """
-    app.include_router(gemini_routes.router)
-    app.include_router(gemini_routes.router_v1beta)
+    app.include_router(gemini_routes.router, prefix=f"/gemini/{API_VERSION}")
+    app.include_router(gemini_routes.router, prefix=f"/{API_VERSION}")
     app.include_router(config_routes.router)
     app.include_router(error_log_routes.router)
     app.include_router(scheduler_routes.router)
