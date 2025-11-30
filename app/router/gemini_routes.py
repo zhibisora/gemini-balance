@@ -22,7 +22,6 @@ from app.service.chat.gemini_chat_service import GeminiChatService
 from app.service.embedding.gemini_embedding_service import GeminiEmbeddingService
 from app.service.key.key_manager import KeyManager, get_key_manager_instance
 from app.service.model.model_service import ModelService
-from app.service.tts.native.tts_routes import get_tts_chat_service
 from app.utils.helpers import redact_key_for_logging
 
 router = APIRouter(prefix=f"/gemini/{API_VERSION}")
