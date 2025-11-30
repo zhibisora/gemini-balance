@@ -153,17 +153,8 @@ class GeminiApiClient(ApiClient):
         """批量嵌入内容生成"""
         timeout = httpx.Timeout(self.timeout, read=self.timeout)
         model = self._get_real_model(model)
-
-        proxy_to_use = None
-        if settings.PROXIES:
-            if settings.PROXIES_USE_CONSISTENCY_HASH_BY_API_KEY:
-                proxy_to_use = settings.PROXIES[hash(api_key) % len(settings.PROXIES)]
-            else:
-                proxy_to_use = random.choice(settings.PROXIES)
-            logger.info(f"Using proxy for batch embedding: {proxy_to_use}")
-
         headers = self._prepare_headers()
-        async with httpx.AsyncClient(timeout=timeout, proxy=proxy_to_use) as client:
+        async with httpx.AsyncClient(timeout=timeout) as client:
             url = f"{self.base_url}/models/{model}:batchEmbedContents?key={api_key}"
             response = await client.post(url, json=payload, headers=headers)
             if response.status_code != 200:
