@@ -1,7 +1,7 @@
 """
 异常处理模块，定义应用程序中使用的自定义异常和异常处理器
 """
-
+from fastapi import HTTPException
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
