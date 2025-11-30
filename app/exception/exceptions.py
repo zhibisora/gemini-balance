@@ -76,12 +76,11 @@ class ServiceUnavailableError(APIError):
         )
 
 
-class RateLimitExceededError(Exception):
+class RateLimitExceededError(HTTPException):
     """当TPM速率限制被触发时抛出此异常。"""
 
     def __init__(self, message: str):
-        self.message = message
-        super().__init__(self.message)
+        super().__init__(status_code=429, detail=message)
 
 
 def setup_exception_handlers(app: FastAPI) -> None:
@@ -91,23 +90,6 @@ def setup_exception_handlers(app: FastAPI) -> None:
     Args:
         app: FastAPI应用程序实例
     """
-
-    @app.exception_handler(RateLimitExceededError)
-    async def rate_limit_exceeded_handler(
-        request: Request, exc: RateLimitExceededError
-    ):
-        """处理速率限制超出错误"""
-        logger.warning(f"Rate limit exceeded: {exc.message}")
-        return JSONResponse(
-            status_code=429,
-            content={
-                "error": {
-                    "code": "rate_limit_exceeded",
-                    "message": exc.message,
-                }
-            },
-        )
-
     @app.exception_handler(APIError)
     async def api_error_handler(request: Request, exc: APIError):
         """处理API错误"""
