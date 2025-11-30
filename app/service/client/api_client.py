@@ -139,7 +139,7 @@ class GeminiApiClient(ApiClient):
                 if response.status_code != 200:
                     error_content = await response.aread()
                     error_msg = error_content.decode("utf-8")
-                    raise Exception(response.status_code, error_msg)
+                    raise HTTPException(status_code=response.status_code, detail=error_msg)
                 async for line in response.aiter_lines():
                     yield line
 
