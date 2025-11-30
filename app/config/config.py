@@ -13,7 +13,6 @@ from sqlalchemy import insert, select, update
 from app.core.constants import (
     API_VERSION,
     DEFAULT_MODEL,
-    DEFAULT_SAFETY_SETTINGS,
     DEFAULT_TIMEOUT,
     MAX_RETRIES,
 )
