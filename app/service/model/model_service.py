@@ -19,15 +19,5 @@ class ModelService:
         return gemini_models
 
     async def check_model_support(self, model: str) -> bool:
-        if not model or not isinstance(model, str):
-            return False
-
-        model = model.strip()
-        if model.endswith("-search"):
-            model = model[:-7]
-            return model in settings.SEARCH_MODELS
-        if model.endswith("-image"):
-            model = model[:-6]
-            return model in settings.IMAGE_MODELS
-
-        return model not in settings.FILTERED_MODELS
+        # 将模型有效性验证完全交给Gemini API
+        return True
