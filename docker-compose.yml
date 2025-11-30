@@ -1,5 +1,5 @@
 volumes:
-  mysql_data:
+  postgres_data:
 services:
   gemini-balance:
     build: .
