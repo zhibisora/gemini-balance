@@ -5,11 +5,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from app.core.application import create_app
-from app.log.logger import get_main_logger
+from app.log.logger import Logger
 
 app = create_app()
 
 if __name__ == "__main__":
-    logger = get_main_logger()
+    logger = Logger.setup_logger("main")
     logger.info("Starting application server...")
     uvicorn.run(app, host="0.0.0.0", port=8001)
