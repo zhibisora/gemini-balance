@@ -30,13 +30,6 @@ VALID_IMAGE_RATIOS = ["1:1", "3:4", "4:3", "9:16", "16:9"]
 UPLOAD_PROVIDERS = ["smms", "picgo", "cloudflare_imgbed", "aliyun_oss"]
 DEFAULT_UPLOAD_PROVIDER = "smms"
 
-# 流式输出相关常量
-DEFAULT_STREAM_MIN_DELAY = 0.016
-DEFAULT_STREAM_MAX_DELAY = 0.024
-DEFAULT_STREAM_SHORT_TEXT_THRESHOLD = 10
-DEFAULT_STREAM_LONG_TEXT_THRESHOLD = 50
-DEFAULT_STREAM_CHUNK_SIZE = 5
-
 # 正则表达式模式
 IMAGE_URL_PATTERN = r"!\[(.*?)\]\((.*?)\)"
 DATA_URL_PATTERN = r"data:([^;]+);base64,(.+)"
