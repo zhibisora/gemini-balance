@@ -72,9 +72,7 @@ def _extract_result(
                 text = _format_execution_result(parts[0]["codeExecutionResult"])
             elif "inlineData" in parts[0]:
                 text = _extract_image_data(parts[0])
-            else:
-                text = ""
-            text = _add_search_link_text(model, candidate, text)
+
             tool_calls = _extract_tool_calls(parts)
     else:
         if response.get("candidates"):
