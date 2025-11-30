@@ -60,19 +60,6 @@ class KeyManager:
             if current_key == initial_key:
                 return current_key
 
-    async def get_next_working_vertex_key(self) -> str:
-        """获取下一可用的 Vertex Express API key"""
-        initial_key = await self.get_next_vertex_key()
-        current_key = initial_key
-
-        while True:
-            if await self.is_vertex_key_valid(current_key):
-                return current_key
-
-            current_key = await self.get_next_vertex_key()
-            if current_key == initial_key:
-                return current_key
-
     async def handle_api_failure(self, api_key: str, retries: int) -> str:
         """处理API调用失败"""
         async with self.failure_count_lock:
