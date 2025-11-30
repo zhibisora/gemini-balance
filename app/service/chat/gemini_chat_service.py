@@ -33,7 +33,7 @@ from app.utils.helpers import (
     redact_key_for_logging,
 )
 
-logger = get_gemini_logger()
+logger = Logger.setup_logger("gemini")
 
 
 def _has_image_parts(contents: List[Dict[str, Any]]) -> bool:
