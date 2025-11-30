@@ -11,7 +11,6 @@ from pydantic import BaseModel, Field
 from app.core.security import verify_auth_token
 from app.log.logger import Logger, get_config_routes_logger
 from app.service.config.config_service import ConfigService
-from app.service.proxy.proxy_check_service import get_proxy_check_service, ProxyCheckResult
 from app.utils.helpers import redact_key_for_logging
 
 router = APIRouter(prefix="/api/config", tags=["config"])
