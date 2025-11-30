@@ -115,7 +115,7 @@ class ConfigService:
         # 重置并重新初始化 KeyManager
         try:
             await reset_key_manager_instance()
-            await get_key_manager_instance(settings.API_KEYS, settings.VERTEX_API_KEYS)
+            await get_key_manager_instance(settings.API_KEYS)
             logger.info("KeyManager instance re-initialized with updated settings.")
         except Exception as e:
             logger.error(f"Failed to re-initialize KeyManager: {str(e)}")
