@@ -295,12 +295,6 @@ async def sync_initial_settings():
         updated_in_memory = False
 
         for key, db_value in db_settings_map.items():
-            if key == "DATABASE_TYPE":
-                logger.debug(
-                    f"Skipping update of '{key}' in memory from database. "
-                    "This setting is controlled by environment/dotenv."
-                )
-                continue
             if hasattr(settings, key):
                 target_type = Settings.__annotations__.get(key)
                 if target_type:
