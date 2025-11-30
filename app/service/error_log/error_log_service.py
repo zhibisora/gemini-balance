@@ -7,9 +7,9 @@ from app.config.config import settings
 from app.database import services as db_services
 from app.database.connection import database
 from app.database.models import ErrorLog
-from app.log.logger import get_error_log_logger
+from app.log.logger import Logger
 
-logger = get_error_log_logger()
+logger = Logger.setup_logger("error_log")
 
 
 async def delete_old_error_logs():
