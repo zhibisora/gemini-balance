@@ -21,7 +21,7 @@ from app.database.services import add_error_log, add_request_log
 from fastapi import HTTPException
 
 from app.domain.gemini_models import GeminiRequest
-from app.exception.exceptions import RateLimitExceededError
+from app.exception.exceptions import RateLimitExceededError, RequestTooLargeError
 from app.handler.rate_limit_handler import key_rate_limiter, rate_limiter
 from app.handler.response_handler import GeminiResponseHandler
 from app.handler.stream_optimizer import gemini_optimizer
