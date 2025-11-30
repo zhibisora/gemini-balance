@@ -55,6 +55,6 @@ async def disconnect_from_db():
     """
     try:
         await database.disconnect()
-        logger.info(f"Disconnected from {settings.DATABASE_TYPE}")
+        logger.info("Disconnected from PostgreSQL")
     except Exception as e:
         logger.error(f"Failed to disconnect from database: {str(e)}")
