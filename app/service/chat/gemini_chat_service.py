@@ -486,7 +486,7 @@ class GeminiChatService:
         is_success = False
         status_code = None
         start_time = time.perf_counter()
-        request_datetime = datetime.datetime.now()
+        request_datetime = datetime.datetime.now(datetime.timezone.utc)
 
         try:
             async for line in self.api_client.stream_generate_content(
