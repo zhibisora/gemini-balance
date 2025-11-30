@@ -26,9 +26,19 @@ class RetryHandler:
                 try:
                     return await func(*args, **kwargs)
                 except Exception as e:
+                    # 检查是否为可重试的503错误
+                    status_code = None
+                    if hasattr(e, "args") and len(e.args) > 0 and isinstance(e.args[0], int):
+                        status_code = e.args[0]
+
+                    if status_code != 503:
+                        logger.error(f"Non-retryable error encountered (status: {status_code}): {str(e)}. Failing fast.")
+                        raise e  # 如果不是503错误，立即将错误向下传递
+
+                    # --- 503错误，执行重试逻辑 ---
                     last_exception = e
                     logger.warning(
-                        f"API call failed with error: {str(e)}. Attempt {retries} of {settings.MAX_RETRIES}"
+                        f"API call failed with 503 error. Attempt {retries} of {settings.MAX_RETRIES}. Retrying..."
                     )
 
                     # 从函数参数中获取 key_manager
