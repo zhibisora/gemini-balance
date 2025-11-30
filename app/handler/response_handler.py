@@ -165,13 +165,9 @@ def _handle_gemini_stream_response(
 
 
 def _handle_gemini_normal_response(
-    response: Dict[str, Any], model: str, stream: bool
+    response: Dict[str, Any], model: str
 ) -> Dict[str, Any]:
-    # Early return raw Gemini response if no uploader configured and contains inline images
-    if not is_image_upload_configured(settings) and _has_inline_image_part(response):
-        return response
-
-    text, tool_calls, thought = _extract_result(response, model, stream=stream)
+    text, tool_calls, thought = _extract_result(response, model, stream=False)
     parts = []
     if tool_calls:
         parts = tool_calls
