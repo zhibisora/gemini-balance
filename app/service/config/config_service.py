@@ -15,14 +15,14 @@ from app.config.config import settings
 from app.database.connection import database
 from app.database.models import Settings
 from app.database.services import get_all_settings
-from app.log.logger import get_config_routes_logger
+from app.log.logger import Logger
 from app.service.key.key_manager import (
     get_key_manager_instance,
     reset_key_manager_instance,
 )
 from app.service.model.model_service import ModelService
 
-logger = get_config_routes_logger()
+logger = Logger.setup_logger("config_routes")
 
 
 class ConfigService:
