@@ -52,7 +52,6 @@ async def get_embedding_service(key_manager: KeyManager = Depends(get_key_manage
 
 
 @router.get("/models")
-@router_v1beta.get("/models")
 async def list_models(
     allowed_token=Depends(security_service.verify_key_or_goog_api_key),
     key_manager: KeyManager = Depends(get_key_manager),
