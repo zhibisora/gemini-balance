@@ -16,7 +16,6 @@ from app.router import (
     key_routes,
     scheduler_routes,
     stats_routes,
-    vertex_express_routes,
 )
 from app.service.key.key_manager import get_key_manager_instance
 from app.service.stats.stats_service import StatsService
