@@ -3,7 +3,7 @@
 """
 from dotenv import dotenv_values
 from sqlalchemy import insert, select
-from sqlalchemy.ext.asyncio import async_inspect
+from sqlalchemy.inspection import async_inspect
 
 from app.database.connection import Base, database, engine
 from app.database.models import Settings
