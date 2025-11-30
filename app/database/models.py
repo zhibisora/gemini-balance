@@ -18,8 +18,8 @@ class Settings(Base):
     key = Column(String(100), nullable=False, unique=True, comment="配置项键名")
     value = Column(Text, nullable=True, comment="配置项值")
     description = Column(String(255), nullable=True, comment="配置项描述")
-    created_at = Column(DateTime, default=datetime.datetime.now, comment="创建时间")
-    updated_at = Column(DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now, comment="更新时间")
+    created_at = Column(DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc), comment="创建时间")
+    updated_at = Column(DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc), onupdate=lambda: datetime.datetime.now(datetime.timezone.utc), comment="更新时间")
     
     def __repr__(self):
         return f"<Settings(key='{self.key}', value='{self.value}')>"
