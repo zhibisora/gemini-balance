@@ -51,7 +51,7 @@ class StatsService:
     async def get_calls_in_current_month(self) -> dict[str, int]:
         """获取当前自然月内的调用次数 (总数、成功、失败)"""
         try:
-            now = datetime.datetime.now()
+            now = datetime.datetime.now(datetime.timezone.utc)
             start_of_month = now.replace(
                 day=1, hour=0, minute=0, second=0, microsecond=0
             )
