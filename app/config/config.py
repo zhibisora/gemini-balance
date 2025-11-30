@@ -48,9 +48,6 @@ class Settings(BaseSettings):
     TIME_OUT: int = DEFAULT_TIMEOUT
     MAX_RETRIES: int = MAX_RETRIES
 
-    # 智能路由配置
-    URL_NORMALIZATION_ENABLED: bool = False  # 是否启用智能路由映射功能
-
     # 自定义 Headers
     CUSTOM_HEADERS: Dict[str, str] = {}
 
