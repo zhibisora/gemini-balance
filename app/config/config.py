@@ -29,16 +29,13 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str = ""
     POSTGRES_DB: str = ""
 
-    # 验证 MySQL 配置
+    # 验证 PostgreSQL 配置
     @field_validator(
         "POSTGRES_HOST", "POSTGRES_PORT", "POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_DB"
     )
     def validate_postgres_config(cls, v: Any, info: ValidationInfo) -> Any:
-        if info.data.get("DATABASE_TYPE") == "postgres":
-            if v is None or v == "":
-                raise ValueError(
-                    "PostgreSQL configuration is required when DATABASE_TYPE is 'postgres'"
-                )
+        if v is None or v == "":
+            raise ValueError("PostgreSQL configuration is required")
         return v
 
     # API相关配置
