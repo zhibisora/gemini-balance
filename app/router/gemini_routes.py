@@ -24,8 +24,7 @@ from app.service.key.key_manager import KeyManager, get_key_manager_instance
 from app.service.model.model_service import ModelService
 from app.utils.helpers import redact_key_for_logging
 
-router = APIRouter(prefix=f"/gemini/{API_VERSION}")
-router_v1beta = APIRouter(prefix=f"/{API_VERSION}")
+router = APIRouter()
 logger = get_gemini_logger()
 
 security_service = SecurityService()
