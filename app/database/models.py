@@ -38,7 +38,7 @@ class ErrorLog(Base):
     error_log = Column(Text, nullable=True, comment="错误日志")
     error_code = Column(Integer, nullable=True, comment="错误代码")
     request_msg = Column(JSON, nullable=True, comment="请求消息")
-    request_time = Column(DateTime, default=datetime.datetime.now, comment="请求时间")
+    request_time = Column(DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc), comment="请求时间")
     
     def __repr__(self):
         return f"<ErrorLog(id='{self.id}', gemini_key='{self.gemini_key}')>"
@@ -52,7 +52,7 @@ class RequestLog(Base):
     __tablename__ = "t_request_log"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    request_time = Column(DateTime, default=datetime.datetime.now, comment="请求时间")
+    request_time = Column(DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc), comment="请求时间")
     model_name = Column(String(100), nullable=True, comment="模型名称")
     api_key = Column(String(100), nullable=True, comment="使用的API密钥")
     is_success = Column(Boolean, nullable=False, comment="请求是否成功")
