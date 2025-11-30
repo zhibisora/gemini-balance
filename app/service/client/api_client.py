@@ -107,7 +107,7 @@ class GeminiApiClient(ApiClient):
                 logger.error(
                     f"API call failed - Status: {response.status_code}, Content: {error_content}"
                 )
-                raise Exception(response.status_code, error_content)
+                raise HTTPException(status_code=response.status_code, detail=error_content)
             response_data = response.json()
 
             # 检查响应结构的基本信息
