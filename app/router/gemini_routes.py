@@ -251,7 +251,6 @@ async def count_tokens(
 
 
 @router.post("/models/{model_name}:embedContent")
-@router_v1beta.post("/models/{model_name}:embedContent")
 @RetryHandler(key_arg="api_key")
 async def embed_content(
     model_name: str,
