@@ -48,7 +48,7 @@ class ConfigService:
 
         settings_to_update: List[Dict[str, Any]] = []
         settings_to_insert: List[Dict[str, Any]] = []
-        now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8)))
+        now = datetime.datetime.now(datetime.timezone.utc)
 
         # 准备要更新或插入的数据
         for key, value in config_data.items():
