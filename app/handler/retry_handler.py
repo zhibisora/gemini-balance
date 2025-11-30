@@ -54,7 +54,7 @@ class RetryHandler:
                             break
 
             logger.error(
-                f"All retry attempts failed, raising final exception: {str(last_exception)}"
+                f"All retry attempts for 503 error failed, raising final exception: {str(last_exception)}"
             )
             raise last_exception
 
