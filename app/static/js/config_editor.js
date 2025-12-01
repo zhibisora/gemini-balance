@@ -827,20 +827,15 @@ function switchTab(tabId) {
 
   // 更新标签按钮状态
   const tabButtons = document.querySelectorAll(".tab-btn");
-  console.log(`Found ${tabButtons.length} tab buttons`);
 
   tabButtons.forEach((button) => {
     const buttonTabId = button.getAttribute("data-tab");
     if (buttonTabId === tabId) {
-      // 激活状态：直接设置内联样式
       button.classList.add("active");
       button.setAttribute("style", activeStyle);
-      console.log(`Applied active style to button: ${buttonTabId}`);
     } else {
-      // 非激活状态：直接设置内联样式
       button.classList.remove("active");
       button.setAttribute("style", inactiveStyle);
-      console.log(`Applied inactive style to button: ${buttonTabId}`);
     }
   });
 
