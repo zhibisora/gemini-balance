@@ -106,22 +106,3 @@ def get_static_url(file_path: str) -> str:
         get_static_url('js/config_editor.js') -> '/static/js/config_editor.js?v=e5f6g7h8'
     """
     return _static_version_manager.get_versioned_url(file_path)
-
-
-def clear_static_cache():
-    """清空静态资源版本缓存"""
-    _static_version_manager.clear_cache()
-
-
-@lru_cache(maxsize=128)
-def get_cached_static_url(file_path: str) -> str:
-    """
-    获取缓存的静态资源URL（用于开发环境）
-
-    Args:
-        file_path: 相对于static目录的文件路径
-
-    Returns:
-        带版本参数的完整URL
-    """
-    return get_static_url(file_path)
