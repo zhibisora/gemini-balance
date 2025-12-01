@@ -2,72 +2,26 @@
 const SENSITIVE_INPUT_CLASS = "sensitive-input";
 const ARRAY_ITEM_CLASS = "array-item";
 const ARRAY_INPUT_CLASS = "array-input";
-const MAP_ITEM_CLASS = "map-item";
-const MAP_KEY_INPUT_CLASS = "map-key-input";
-const MAP_VALUE_INPUT_CLASS = "map-value-input";
 const CUSTOM_HEADER_ITEM_CLASS = "custom-header-item";
 const CUSTOM_HEADER_KEY_INPUT_CLASS = "custom-header-key-input";
 const CUSTOM_HEADER_VALUE_INPUT_CLASS = "custom-header-value-input";
-const SAFETY_SETTING_ITEM_CLASS = "safety-setting-item";
 const SHOW_CLASS = "show"; // For modals
 const API_KEY_REGEX = /AIzaSy\S{33}/g;
-const PROXY_REGEX =
-  /(?:https?|socks5):\/\/(?:[^:@\/]+(?::[^@\/]+)?@)?(?:[^:\/\s]+)(?::\d+)?/g;
-const VERTEX_API_KEY_REGEX = /AQ\.[a-zA-Z0-9_\-]{50}/g; // 新增 Vertex Express API Key 正则
 const MASKED_VALUE = "••••••••";
 
 // API Keys Pagination Constants
-const API_KEYS_PER_PAGE = 20; // 每页显示的API密钥数量
+const API_KEYS_PER_PAGE = 20;
 let currentApiKeyPage = 1;
 let totalApiKeyPages = 1;
-let allApiKeys = []; // 存储所有API密钥数据
-let filteredApiKeys = []; // 存储过滤后的API密钥数据
+let allApiKeys = []; // Stores all API keys
+let filteredApiKeys = []; // Stores filtered API keys for display
 
 // DOM Elements - Global Scope for frequently accessed elements
-const safetySettingsContainer = document.getElementById(
-  "SAFETY_SETTINGS_container"
-);
-const thinkingModelsContainer = document.getElementById(
-  "THINKING_MODELS_container"
-);
-const apiKeyModal = document.getElementById("apiKeyModal");
-const apiKeyBulkInput = document.getElementById("apiKeyBulkInput");
-const apiKeySearchInput = document.getElementById("apiKeySearchInput");
-const bulkDeleteApiKeyModal = document.getElementById("bulkDeleteApiKeyModal");
-const bulkDeleteApiKeyInput = document.getElementById("bulkDeleteApiKeyInput");
-const proxyModal = document.getElementById("proxyModal");
-const proxyBulkInput = document.getElementById("proxyBulkInput");
-const bulkDeleteProxyModal = document.getElementById("bulkDeleteProxyModal");
-const bulkDeleteProxyInput = document.getElementById("bulkDeleteProxyInput");
-const resetConfirmModal = document.getElementById("resetConfirmModal");
-const configForm = document.getElementById("configForm"); // Added for frequent use
-
-// Vertex Express API Key Modal Elements
-const vertexApiKeyModal = document.getElementById("vertexApiKeyModal");
-const vertexApiKeyBulkInput = document.getElementById("vertexApiKeyBulkInput");
-const bulkDeleteVertexApiKeyModal = document.getElementById(
-  "bulkDeleteVertexApiKeyModal"
-);
-const bulkDeleteVertexApiKeyInput = document.getElementById(
-  "bulkDeleteVertexApiKeyInput"
-);
+let apiKeyModal, apiKeyBulkInput, apiKeySearchInput, bulkDeleteApiKeyModal, bulkDeleteApiKeyInput, resetConfirmModal, configForm, modelHelperModal, modelHelperTitleElement, modelHelperSearchInput, modelHelperListContainer;
 
 // Model Helper Modal Elements
-const modelHelperModal = document.getElementById("modelHelperModal");
-const modelHelperTitleElement = document.getElementById("modelHelperTitle");
-const modelHelperSearchInput = document.getElementById(
-  "modelHelperSearchInput"
-);
-const modelHelperListContainer = document.getElementById(
-  "modelHelperListContainer"
-);
-const closeModelHelperModalBtn = document.getElementById(
-  "closeModelHelperModalBtn"
-);
-const cancelModelHelperBtn = document.getElementById("cancelModelHelperBtn");
-
 let cachedModelsList = null;
-let currentModelHelperTarget = null; // { type: 'input'/'array', target: elementOrIdOrKey }
+let currentModelHelperTarget = null; // { type: 'input', target: element }
 
 // Modal Control Functions
 function openModal(modalElement) {
