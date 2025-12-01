@@ -362,55 +362,21 @@ function populateForm(config) {
       '<div class="text-gray-500 text-sm italic">添加自定义请求头，例如 X-Api-Key: your-key</div>';
   }
 
-  // 4. Populate other array fields (excluding THINKING_MODELS and API_KEYS)
-  for (const [key, value] of Object.entries(config)) {
-    if (Array.isArray(value) && key !== "THINKING_MODELS" && key !== "API_KEYS") {
-      const container = document.getElementById(`${key}_container`);
-      if (container) {
-        value.forEach((itemValue) => {
-          if (typeof itemValue === "string") {
-            addArrayItemWithValue(key, itemValue);
-          } else {
-            console.warn(`Invalid item found in array '${key}':`, itemValue);
-          }
-        });
-      }
-    }
-  }
-
-  // 4.1. 特殊处理API_KEYS - 使用分页
+  // Populate API_KEYS with pagination
   if (Array.isArray(config.API_KEYS)) {
-    allApiKeys = config.API_KEYS.filter(key =>
-      typeof key === "string" && key.trim() !== ""
-    );
+    allApiKeys = config.API_KEYS.filter(key => typeof key === "string" && key.trim() !== "");
     filteredApiKeys = [...allApiKeys];
     currentApiKeyPage = 1;
     renderApiKeyPage();
     updateApiKeyPagination();
   }
 
-  // 5. Populate non-array/non-budget fields
-  for (const [key, value] of Object.entries(config)) {
-    if (
-      !Array.isArray(value) &&
-      !(
-        typeof value === "object" &&
-        value !== null &&
-        key === "THINKING_BUDGET_MAP"
-      )
-    ) {
-      const element = document.getElementById(key);
-      if (element) {
-        if (element.type === "checkbox" && typeof value === "boolean") {
-          element.checked = value;
-        } else if (element.type !== "checkbox") {
-          if (key === "LOG_LEVEL" && typeof value === "string") {
-            element.value = value.toUpperCase();
-          } else {
-            element.value = value !== null && value !== undefined ? value : "";
-          }
-        }
-      }
+  // Populate ALLOWED_TOKENS
+  const allowedTokensContainer = document.getElementById("ALLOWED_TOKENS_container");
+  if(allowedTokensContainer) {
+    allowedTokensContainer.innerHTML = "";
+    if (Array.isArray(config.ALLOWED_TOKENS)) {
+        config.ALLOWED_TOKENS.forEach(token => addArrayItemWithValue("ALLOWED_TOKENS", token));
     }
   }
 
