@@ -31,17 +31,6 @@ from app.utils.helpers import (
 
 logger = Logger.setup_logger("gemini")
 
-
-def _has_image_parts(contents: List[Dict[str, Any]]) -> bool:
-    """判断消息是否包含图片部分"""
-    for content in contents:
-        if "parts" in content:
-            for part in content["parts"]:
-                if "image_url" in part or "inline_data" in part:
-                    return True
-    return False
-
-
 def _clean_json_schema_properties(obj: Any) -> Any:
     """清理JSON Schema中Gemini API不支持的字段"""
     if not isinstance(obj, dict):
