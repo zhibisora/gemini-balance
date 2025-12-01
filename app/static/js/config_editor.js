@@ -260,93 +260,26 @@ function initializeSensitiveFields() {
   // Initial masking for existing sensitive fields on page load
   // This function is called after populateForm and after dynamic element additions (via event delegation)
   function initialMaskAllExisting() {
-    const sensitiveFields = configForm.querySelectorAll(
-      `.${SENSITIVE_INPUT_CLASS}`
-    );
-    sensitiveFields.forEach((field) => {
+    configForm.querySelectorAll(`.${SENSITIVE_INPUT_CLASS}`).forEach((field) => {
       if (field.type === "password") {
-        // For password fields, browser handles it. We just ensure data-original-type is set
-        // and if it has a value, we also store data-real-value so it can be shown when switched to text
-        if (field.value) {
-          field.setAttribute("data-real-value", field.value);
-        }
-        // No need to set to MASKED_VALUE as browser handles it.
-      } else if (
-        field.type === "text" ||
-        field.tagName.toLowerCase() === "textarea"
-      ) {
+        if (field.value) field.setAttribute("data-real-value", field.value);
+      } else if (field.type === "text" || field.tagName.toLowerCase() === "textarea") {
         maskField(field);
       }
     });
   }
   initialMaskAllExisting();
 
-  // Event delegation for dynamic and static fields
   configForm.addEventListener("focusin", function (event) {
-    const target = event.target;
-    if (target.classList.contains(SENSITIVE_INPUT_CLASS)) {
-      if (target.type === "password") {
-        // Record original type to switch back on blur
-        if (!target.hasAttribute("data-original-type")) {
-          target.setAttribute("data-original-type", "password");
-        }
-        target.type = "text"; // Switch to text type to show content
-        // If data-real-value exists (e.g., set during populateForm), use it
-        if (target.hasAttribute("data-real-value")) {
-          target.value = target.getAttribute("data-real-value");
-        }
-        // Otherwise, the browser's existing password value will be shown directly
-      } else {
-        // For type="text" or textarea
-        unmaskField(target);
-      }
+    if (event.target.classList.contains(SENSITIVE_INPUT_CLASS)) {
+      unmaskField(event.target);
     }
   });
 
   configForm.addEventListener("focusout", function (event) {
-    const target = event.target;
-    if (target.classList.contains(SENSITIVE_INPUT_CLASS)) {
-      // First, if the field is currently text and has a value, update data-real-value
-      if (
-        target.type === "text" ||
-        target.tagName.toLowerCase() === "textarea"
-      ) {
-        if (target.value && target.value !== MASKED_VALUE) {
-          target.setAttribute("data-real-value", target.value);
-        } else if (!target.value) {
-          // If value is empty, remove data-real-value
-          target.removeAttribute("data-real-value");
-        }
-      }
-
-      // Then handle type switching and masking
-      if (
-        target.getAttribute("data-original-type") === "password" &&
-        target.type === "text"
-      ) {
-        target.type = "password"; // Switch back to password type
-        // For password type, browser handles masking automatically, no need to set MASKED_VALUE manually
-        // data-real-value has already been updated by the logic above
-      } else if (
-        target.type === "text" ||
-        target.tagName.toLowerCase() === "textarea"
-      ) {
-        // For text or textarea sensitive fields, perform masking
-        maskField(target);
-      }
+    if (event.target.classList.contains(SENSITIVE_INPUT_CLASS)) {
+      maskField(event.target);
     }
-  });
-}
-
-/**
- * Generates a UUID.
- * @returns {string} A new UUID.
- */
-function generateUUID() {
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-    var r = (Math.random() * 16) | 0,
-      v = c == "x" ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
   });
 }
 
