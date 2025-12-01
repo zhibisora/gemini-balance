@@ -384,93 +384,22 @@ function populateForm(config) {
   const uploadProvider = document.getElementById("UPLOAD_PROVIDER");
   if (uploadProvider) {
     toggleProviderConfig(uploadProvider.value);
+    // This function is defined below, but the HTML doesn't contain provider configs.
+    // It will do nothing if no `.provider-config` elements exist.
   }
 
-  // Populate SAFETY_SETTINGS
-  let safetyItemsAdded = false;
-  if (safetySettingsContainer && Array.isArray(config.SAFETY_SETTINGS)) {
-    config.SAFETY_SETTINGS.forEach((setting) => {
-      if (
-        setting &&
-        typeof setting === "object" &&
-        setting.category &&
-        setting.threshold
-      ) {
-        addSafetySettingItem(setting.category, setting.threshold);
-        safetyItemsAdded = true;
-      } else {
-        console.warn("Invalid safety setting item found:", setting);
-      }
-    });
+  // Handle dependent fields state
+  const autoDeleteErrorCheckbox = document.getElementById("AUTO_DELETE_ERROR_LOGS_ENABLED");
+  const autoDeleteErrorSelect = document.getElementById("AUTO_DELETE_ERROR_LOGS_DAYS");
+  if(autoDeleteErrorCheckbox && autoDeleteErrorSelect) {
+      autoDeleteErrorSelect.disabled = !autoDeleteErrorCheckbox.checked;
   }
-  if (safetySettingsContainer && !safetyItemsAdded) {
-    safetySettingsContainer.innerHTML =
-      '<div class="text-gray-500 text-sm italic">定义模型的安全过滤阈值。</div>';
+  
+  const autoDeleteRequestCheckbox = document.getElementById("AUTO_DELETE_REQUEST_LOGS_ENABLED");
+  const autoDeleteRequestSelect = document.getElementById("AUTO_DELETE_REQUEST_LOGS_DAYS");
+  if(autoDeleteRequestCheckbox && autoDeleteRequestSelect) {
+      autoDeleteRequestSelect.disabled = !autoDeleteRequestCheckbox.checked;
   }
-
-  // --- 新增：处理自动删除错误日志的字段 ---
-  const autoDeleteEnabledCheckbox = document.getElementById(
-    "AUTO_DELETE_ERROR_LOGS_ENABLED"
-  );
-  const autoDeleteDaysSelect = document.getElementById(
-    "AUTO_DELETE_ERROR_LOGS_DAYS"
-  );
-
-  if (autoDeleteEnabledCheckbox && autoDeleteDaysSelect) {
-    autoDeleteEnabledCheckbox.checked = !!config.AUTO_DELETE_ERROR_LOGS_ENABLED; // 确保是布尔值
-    autoDeleteDaysSelect.value = config.AUTO_DELETE_ERROR_LOGS_DAYS || 7; // 默认7天
-
-    // 根据复选框状态设置下拉框的禁用状态
-    autoDeleteDaysSelect.disabled = !autoDeleteEnabledCheckbox.checked;
-
-    // 添加事件监听器
-    autoDeleteEnabledCheckbox.addEventListener("change", function () {
-      autoDeleteDaysSelect.disabled = !this.checked;
-    });
-  }
-  // --- 结束：处理自动删除错误日志的字段 ---
-
-  // --- 新增：处理自动删除请求日志的字段 ---
-  const autoDeleteRequestEnabledCheckbox = document.getElementById(
-    "AUTO_DELETE_REQUEST_LOGS_ENABLED"
-  );
-  const autoDeleteRequestDaysSelect = document.getElementById(
-    "AUTO_DELETE_REQUEST_LOGS_DAYS"
-  );
-
-  if (autoDeleteRequestEnabledCheckbox && autoDeleteRequestDaysSelect) {
-    autoDeleteRequestEnabledCheckbox.checked =
-      !!config.AUTO_DELETE_REQUEST_LOGS_ENABLED;
-    autoDeleteRequestDaysSelect.value =
-      config.AUTO_DELETE_REQUEST_LOGS_DAYS || 30;
-    autoDeleteRequestDaysSelect.disabled =
-      !autoDeleteRequestEnabledCheckbox.checked;
-
-    autoDeleteRequestEnabledCheckbox.addEventListener("change", function () {
-      autoDeleteRequestDaysSelect.disabled = !this.checked;
-    });
-  }
-  // --- 结束：处理自动删除请求日志的字段 ---
-
-  // --- 新增：处理假流式配置的字段 ---
-  const fakeStreamEnabledCheckbox = document.getElementById(
-    "FAKE_STREAM_ENABLED"
-  );
-  const fakeStreamIntervalInput = document.getElementById(
-    "FAKE_STREAM_EMPTY_DATA_INTERVAL_SECONDS"
-  );
-
-  if (fakeStreamEnabledCheckbox && fakeStreamIntervalInput) {
-    fakeStreamEnabledCheckbox.checked = !!config.FAKE_STREAM_ENABLED;
-    fakeStreamIntervalInput.value =
-      config.FAKE_STREAM_EMPTY_DATA_INTERVAL_SECONDS || 5;
-    // 根据复选框状态设置输入框的禁用状态 (如果需要)
-    // fakeStreamIntervalInput.disabled = !fakeStreamEnabledCheckbox.checked;
-    // fakeStreamEnabledCheckbox.addEventListener("change", function () {
-    //   fakeStreamIntervalInput.disabled = !this.checked;
-    // });
-  }
-  // --- 结束：处理假流式配置的字段 ---
 }
 
 /**
