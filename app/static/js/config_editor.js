@@ -1750,7 +1750,6 @@ function renderModelsInModal() {
     modelItemElement.textContent = model.id;
     modelItemElement.className =
       "block w-full text-left px-4 py-2 rounded-md hover:bg-blue-100 focus:bg-blue-100 focus:outline-none transition-colors text-gray-700 hover:text-gray-800";
-    // Add any other classes for styling, e.g., from existing modals or array items
 
     modelItemElement.addEventListener("click", () =>
       handleModelSelection(model.id)
