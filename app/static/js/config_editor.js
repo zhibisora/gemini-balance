@@ -1191,190 +1191,51 @@ function createAndAppendCustomHeaderItem(key, value) {
  * @returns {object} An object containing all configuration data.
  */
 function collectFormData() {
-  const formData = {};
+    const formData = {};
+    const form = document.getElementById('configForm');
 
-  // 处理普通输入和 select
-  const inputsAndSelects = document.querySelectorAll(
-    'input[type="text"], input[type="number"], input[type="password"], select, textarea'
-  );
-  inputsAndSelects.forEach((element) => {
-    if (
-      element.name &&
-      !element.name.includes("[]") &&
-      !element.closest(".array-container") &&
-      !element.closest(`.${MAP_ITEM_CLASS}`) &&
-      !element.closest(`.${SAFETY_SETTING_ITEM_CLASS}`)
-    ) {
-      if (element.type === "number") {
-        formData[element.name] = parseFloat(element.value);
-      } else if (
-        element.classList.contains(SENSITIVE_INPUT_CLASS) &&
-        element.hasAttribute("data-real-value")
-      ) {
-        formData[element.name] = element.getAttribute("data-real-value");
-      } else {
-        formData[element.name] = element.value;
-      }
-    }
-  });
+    // Handle standard inputs, selects, textareas
+    form.querySelectorAll('input, select, textarea').forEach(el => {
+        if (!el.name || el.closest(`.${ARRAY_ITEM_CLASS}`)) return;
 
-  const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-  checkboxes.forEach((checkbox) => {
-    formData[checkbox.name] = checkbox.checked;
-  });
-
-  const arrayContainers = document.querySelectorAll(".array-container");
-  arrayContainers.forEach((container) => {
-    const key = container.id.replace("_container", "");
-    
-    // 特殊处理API_KEYS - 使用全局数组而不是DOM元素
-    if (key === "API_KEYS") {
-      formData[key] = allApiKeys.filter(
-        (value) => value && value.trim() !== "" && value !== MASKED_VALUE
-      );
-      return;
-    }
-    
-    const arrayInputs = container.querySelectorAll(`.${ARRAY_INPUT_CLASS}`);
-    formData[key] = Array.from(arrayInputs)
-      .map((input) => {
-        if (
-          input.classList.contains(SENSITIVE_INPUT_CLASS) &&
-          input.hasAttribute("data-real-value")
-        ) {
-          return input.getAttribute("data-real-value");
+        if (el.type === 'checkbox') {
+            formData[el.name] = el.checked;
+        } else if (el.type === 'number') {
+            formData[el.name] = parseFloat(el.value) || 0;
+        } else if (el.classList.contains(SENSITIVE_INPUT_CLASS) && el.hasAttribute('data-real-value')) {
+            formData[el.name] = el.getAttribute('data-real-value');
+        } else {
+            formData[el.name] = el.value;
         }
-        return input.value;
-      })
-      .filter(
-        (value) => value && value.trim() !== "" && value !== MASKED_VALUE
-      ); // Ensure MASKED_VALUE is also filtered if not handled
-  });
-
-  const budgetMapContainer = document.getElementById(
-    "THINKING_BUDGET_MAP_container"
-  );
-  if (budgetMapContainer) {
-    formData["THINKING_BUDGET_MAP"] = {};
-    const mapItems = budgetMapContainer.querySelectorAll(`.${MAP_ITEM_CLASS}`);
-    mapItems.forEach((item) => {
-      const keyInput = item.querySelector(`.${MAP_KEY_INPUT_CLASS}`);
-      const valueInput = item.querySelector(`.${MAP_VALUE_INPUT_CLASS}`);
-      if (keyInput && valueInput && keyInput.value.trim() !== "") {
-        const budgetValue = parseInt(valueInput.value, 10);
-        formData["THINKING_BUDGET_MAP"][keyInput.value.trim()] = isNaN(
-          budgetValue
-        )
-          ? -1
-          : budgetValue;
-      }
     });
-  }
 
+    // Handle API_KEYS from global array
+    formData['API_KEYS'] = allApiKeys;
+
+    // Handle ALLOWED_TOKENS
+    const allowedTokensContainer = document.getElementById("ALLOWED_TOKENS_container");
+    if(allowedTokensContainer) {
+        formData['ALLOWED_TOKENS'] = Array.from(allowedTokensContainer.querySelectorAll(`.${ARRAY_INPUT_CLASS}`))
+            .map(input => input.classList.contains(SENSITIVE_INPUT_CLASS) && input.hasAttribute('data-real-value') ? input.getAttribute('data-real-value') : input.value)
+            .filter(value => value && value.trim() !== "");
+    }
+
+    // Handle CUSTOM_HEADERS
   const customHeadersContainer = document.getElementById(
     "CUSTOM_HEADERS_container"
   );
-  if (customHeadersContainer) {
-    formData["CUSTOM_HEADERS"] = {};
-    const customHeaderItems = customHeadersContainer.querySelectorAll(
-      `.${CUSTOM_HEADER_ITEM_CLASS}`
-    );
-    customHeaderItems.forEach((item) => {
-      const keyInput = item.querySelector(`.${CUSTOM_HEADER_KEY_INPUT_CLASS}`);
-      const valueInput = item.querySelector(
-        `.${CUSTOM_HEADER_VALUE_INPUT_CLASS}`
-      );
-      if (keyInput && valueInput && keyInput.value.trim() !== "") {
-        formData["CUSTOM_HEADERS"][keyInput.value.trim()] =
-          valueInput.value.trim();
-      }
-    });
-  }
-
-  if (safetySettingsContainer) {
-    formData["SAFETY_SETTINGS"] = [];
-    const settingItems = safetySettingsContainer.querySelectorAll(
-      `.${SAFETY_SETTING_ITEM_CLASS}`
-    );
-    settingItems.forEach((item) => {
-      const categorySelect = item.querySelector(".safety-category-select");
-      const thresholdSelect = item.querySelector(".safety-threshold-select");
-      if (
-        categorySelect &&
-        thresholdSelect &&
-        categorySelect.value &&
-        thresholdSelect.value
-      ) {
-        formData["SAFETY_SETTINGS"].push({
-          category: categorySelect.value,
-          threshold: thresholdSelect.value,
+    if(customHeadersContainer) {
+        formData['CUSTOM_HEADERS'] = {};
+        customHeadersContainer.querySelectorAll(`.${CUSTOM_HEADER_ITEM_CLASS}`).forEach(item => {
+            const keyInput = item.querySelector(`.${CUSTOM_HEADER_KEY_INPUT_CLASS}`);
+            const valueInput = item.querySelector(`.${CUSTOM_HEADER_VALUE_INPUT_CLASS}`);
+            if (keyInput && valueInput && keyInput.value.trim() !== "") {
+                formData['CUSTOM_HEADERS'][keyInput.value.trim()] = valueInput.value.trim();
+            }
         });
-      }
-    });
-  }
-
-  // --- 新增：收集自动删除错误日志的配置 ---
-  const autoDeleteEnabledCheckbox = document.getElementById(
-    "AUTO_DELETE_ERROR_LOGS_ENABLED"
-  );
-  if (autoDeleteEnabledCheckbox) {
-    formData["AUTO_DELETE_ERROR_LOGS_ENABLED"] =
-      autoDeleteEnabledCheckbox.checked;
-  }
-
-  const autoDeleteDaysSelect = document.getElementById(
-    "AUTO_DELETE_ERROR_LOGS_DAYS"
-  );
-  if (autoDeleteDaysSelect) {
-    // 如果复选框未选中，则不应提交天数，或者可以提交一个默认/无效值，
-    // 但后端应该只在 ENABLED 为 true 时才关心 DAYS。
-    // 这里我们总是收集它，后端逻辑会处理。
-    formData["AUTO_DELETE_ERROR_LOGS_DAYS"] = parseInt(
-      autoDeleteDaysSelect.value,
-      10
-    );
-  }
-  // --- 结束：收集自动删除错误日志的配置 ---
-
-  // --- 新增：收集自动删除请求日志的配置 ---
-  const autoDeleteRequestEnabledCheckbox = document.getElementById(
-    "AUTO_DELETE_REQUEST_LOGS_ENABLED"
-  );
-  if (autoDeleteRequestEnabledCheckbox) {
-    formData["AUTO_DELETE_REQUEST_LOGS_ENABLED"] =
-      autoDeleteRequestEnabledCheckbox.checked;
-  }
-
-  const autoDeleteRequestDaysSelect = document.getElementById(
-    "AUTO_DELETE_REQUEST_LOGS_DAYS"
-  );
-  if (autoDeleteRequestDaysSelect) {
-    formData["AUTO_DELETE_REQUEST_LOGS_DAYS"] = parseInt(
-      autoDeleteRequestDaysSelect.value,
-      10
-    );
-  }
-  // --- 结束：收集自动删除请求日志的配置 ---
-
-  // --- 新增：收集假流式配置 ---
-  const fakeStreamEnabledCheckbox = document.getElementById(
-    "FAKE_STREAM_ENABLED"
-  );
-  if (fakeStreamEnabledCheckbox) {
-    formData["FAKE_STREAM_ENABLED"] = fakeStreamEnabledCheckbox.checked;
-  }
-  const fakeStreamIntervalInput = document.getElementById(
-    "FAKE_STREAM_EMPTY_DATA_INTERVAL_SECONDS"
-  );
-  if (fakeStreamIntervalInput) {
-    formData["FAKE_STREAM_EMPTY_DATA_INTERVAL_SECONDS"] = parseInt(
-      fakeStreamIntervalInput.value,
-      10
-    );
-  }
-  // --- 结束：收集假流式配置 ---
-
-  return formData;
+    }
+    
+    return formData;
 }
 
 /**
