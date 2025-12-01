@@ -875,10 +875,9 @@ function toggleProviderConfig(provider) {
  * @param {string} key - The configuration key for the array.
  * @param {string} value - The initial value for the input field.
  * @param {boolean} isSensitive - Whether the input is for sensitive data.
- * @param {string|null} modelId - Optional model ID for thinking models.
  * @returns {HTMLInputElement} The created input element.
  */
-function createArrayInput(key, value, isSensitive, modelId = null) {
+function createArrayInput(key, value, isSensitive) {
   const input = document.createElement("input");
   input.type = "text";
   input.name = `${key}[]`; // Used for form submission if not handled by JS
