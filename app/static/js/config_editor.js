@@ -297,169 +297,31 @@ async function initConfig() {
 
     const config = await response.json();
 
-    // 确保数组字段有默认值
-    if (
-      !config.API_KEYS ||
-      !Array.isArray(config.API_KEYS) ||
-      config.API_KEYS.length === 0
-    ) {
-      config.API_KEYS = ["请在此处输入 API 密钥"];
-    }
+    // Set defaults for missing fields
+    const defaults = {
+        API_KEYS: [],
+        ALLOWED_TOKENS: [],
+        CUSTOM_HEADERS: {},
+        URL_NORMALIZATION_ENABLED: true,
+        TEST_MODEL: "gemini-1.5-flash-latest",
+        CHECK_INTERVAL_HOURS: 24,
+        LOG_LEVEL: "INFO",
+        ERROR_LOG_RECORD_REQUEST_BODY: false,
+        AUTO_DELETE_ERROR_LOGS_ENABLED: true,
+        AUTO_DELETE_ERROR_LOGS_DAYS: 7,
+        AUTO_DELETE_REQUEST_LOGS_ENABLED: false,
+        AUTO_DELETE_REQUEST_LOGS_DAYS: 30,
+    };
 
-    if (
-      !config.ALLOWED_TOKENS ||
-      !Array.isArray(config.ALLOWED_TOKENS) ||
-      config.ALLOWED_TOKENS.length === 0
-    ) {
-      config.ALLOWED_TOKENS = [""];
-    }
-
-    if (
-      !config.IMAGE_MODELS ||
-      !Array.isArray(config.IMAGE_MODELS) ||
-      config.IMAGE_MODELS.length === 0
-    ) {
-      config.IMAGE_MODELS = ["gemini-1.5-pro-latest"];
-    }
-
-    if (
-      !config.SEARCH_MODELS ||
-      !Array.isArray(config.SEARCH_MODELS) ||
-      config.SEARCH_MODELS.length === 0
-    ) {
-      config.SEARCH_MODELS = ["gemini-1.5-flash-latest"];
-    }
-
-    if (
-      !config.FILTERED_MODELS ||
-      !Array.isArray(config.FILTERED_MODELS) ||
-      config.FILTERED_MODELS.length === 0
-    ) {
-      config.FILTERED_MODELS = ["gemini-1.0-pro-latest"];
-    }
-    // --- 新增：处理 VERTEX_API_KEYS 默认值 ---
-    if (!config.VERTEX_API_KEYS || !Array.isArray(config.VERTEX_API_KEYS)) {
-      config.VERTEX_API_KEYS = [];
-    }
-    // --- 新增：处理 VERTEX_EXPRESS_BASE_URL 默认值 ---
-    if (typeof config.VERTEX_EXPRESS_BASE_URL === "undefined") {
-      config.VERTEX_EXPRESS_BASE_URL = "";
-    }
-    // --- 新增：处理 PROXIES 默认值 ---
-    if (!config.PROXIES || !Array.isArray(config.PROXIES)) {
-      config.PROXIES = []; // 默认为空数组
-    }
-    // --- 新增：处理新字段的默认值 ---
-    if (!config.THINKING_MODELS || !Array.isArray(config.THINKING_MODELS)) {
-      config.THINKING_MODELS = []; // 默认为空数组
-    }
-    if (
-      !config.THINKING_BUDGET_MAP ||
-      typeof config.THINKING_BUDGET_MAP !== "object" ||
-      config.THINKING_BUDGET_MAP === null
-    ) {
-      config.THINKING_BUDGET_MAP = {}; // 默认为空对象
-    }
-    // --- 新增：处理 CUSTOM_HEADERS 默认值 ---
-    if (
-      !config.CUSTOM_HEADERS ||
-      typeof config.CUSTOM_HEADERS !== "object" ||
-      config.CUSTOM_HEADERS === null
-    ) {
-      config.CUSTOM_HEADERS = {}; // 默认为空对象
-    }
-    // --- 新增：处理 SAFETY_SETTINGS 默认值 ---
-    if (!config.SAFETY_SETTINGS || !Array.isArray(config.SAFETY_SETTINGS)) {
-      config.SAFETY_SETTINGS = []; // 默认为空数组
-    }
-    // --- 结束：处理 SAFETY_SETTINGS 默认值 ---
-    if (typeof config.URL_CONTEXT_ENABLED === "undefined") {
-      config.URL_CONTEXT_ENABLED = true;
-    }
-    if (!config.URL_CONTEXT_MODELS || !Array.isArray(config.URL_CONTEXT_MODELS)) {
-      config.URL_CONTEXT_MODELS = [];
-    }
- 
-    // --- 新增：处理自动删除错误日志配置的默认值 ---
-    if (typeof config.AUTO_DELETE_ERROR_LOGS_ENABLED === "undefined") {
-      config.AUTO_DELETE_ERROR_LOGS_ENABLED = false;
-    }
-    if (typeof config.AUTO_DELETE_ERROR_LOGS_DAYS === "undefined") {
-      config.AUTO_DELETE_ERROR_LOGS_DAYS = 7;
-    }
-    // 错误日志是否记录请求体（默认不记录）
-    if (typeof config.ERROR_LOG_RECORD_REQUEST_BODY === "undefined") {
-      config.ERROR_LOG_RECORD_REQUEST_BODY = false;
-    }
-    // --- 结束：处理自动删除错误日志配置的默认值 ---
-
-    // --- 新增：处理自动删除请求日志配置的默认值 ---
-    if (typeof config.AUTO_DELETE_REQUEST_LOGS_ENABLED === "undefined") {
-      config.AUTO_DELETE_REQUEST_LOGS_ENABLED = false;
-    }
-    if (typeof config.AUTO_DELETE_REQUEST_LOGS_DAYS === "undefined") {
-      config.AUTO_DELETE_REQUEST_LOGS_DAYS = 30;
-    }
-    // --- 结束：处理自动删除请求日志配置的默认值 ---
-
-    // --- 新增：处理假流式配置的默认值 ---
-    if (typeof config.FAKE_STREAM_ENABLED === "undefined") {
-      config.FAKE_STREAM_ENABLED = false;
-    }
-    if (typeof config.FAKE_STREAM_EMPTY_DATA_INTERVAL_SECONDS === "undefined") {
-      config.FAKE_STREAM_EMPTY_DATA_INTERVAL_SECONDS = 5;
-    }
-    // --- 结束：处理假流式配置的默认值 ---
-
-    populateForm(config);
-    // After populateForm, initialize masking for all populated sensitive fields
-    if (configForm) {
-      // Ensure form exists
-      initializeSensitiveFields(); // Call initializeSensitiveFields to handle initial masking
-    }
-
-    // Ensure upload provider has a default value
-    const uploadProvider = document.getElementById("UPLOAD_PROVIDER");
-    if (uploadProvider && !uploadProvider.value) {
-      uploadProvider.value = "smms"; // 设置默认值为 smms
-      toggleProviderConfig("smms");
-    }
+    const finalConfig = { ...defaults, ...config };
+    
+    populateForm(finalConfig);
+    initializeSensitiveFields();
 
     showNotification("配置加载成功", "success");
   } catch (error) {
     console.error("加载配置失败:", error);
     showNotification("加载配置失败: " + error.message, "error");
-
-    // 加载失败时，使用默认配置
-    const defaultConfig = {
-      API_KEYS: [""],
-      ALLOWED_TOKENS: [""],
-      IMAGE_MODELS: ["gemini-1.5-pro-latest"],
-      SEARCH_MODELS: ["gemini-1.5-flash-latest"],
-      FILTERED_MODELS: ["gemini-1.0-pro-latest"],
-      UPLOAD_PROVIDER: "smms",
-      PROXIES: [],
-      VERTEX_API_KEYS: [], // 确保默认值存在
-      VERTEX_EXPRESS_BASE_URL: "", // 确保默认值存在
-      THINKING_MODELS: [],
-      THINKING_BUDGET_MAP: {},
-      CUSTOM_HEADERS: {},
-      AUTO_DELETE_ERROR_LOGS_ENABLED: false,
-      AUTO_DELETE_ERROR_LOGS_DAYS: 7, // 新增默认值
-      AUTO_DELETE_REQUEST_LOGS_ENABLED: false, // 新增默认值
-      AUTO_DELETE_REQUEST_LOGS_DAYS: 30, // 新增默认值
-      // --- 新增：处理假流式配置的默认值 ---
-      FAKE_STREAM_ENABLED: false,
-      FAKE_STREAM_EMPTY_DATA_INTERVAL_SECONDS: 5,
-      // --- 结束：处理假流式配置的默认值 ---
-    };
-
-    populateForm(defaultConfig);
-    if (configForm) {
-      // Ensure form exists
-      initializeSensitiveFields(); // Call initializeSensitiveFields to handle initial masking
-    }
-    toggleProviderConfig("smms");
   }
 }
 
@@ -468,78 +330,16 @@ async function initConfig() {
  * @param {object} config - The configuration object.
  */
 function populateForm(config) {
-  const modelIdMap = {}; // modelName -> modelId
-
-  // 1. Clear existing dynamic content first
-  const arrayContainers = document.querySelectorAll(".array-container");
-  arrayContainers.forEach((container) => {
-    container.innerHTML = ""; // Clear all array containers
-  });
-  const budgetMapContainer = document.getElementById(
-    "THINKING_BUDGET_MAP_container"
-  );
-  if (budgetMapContainer) {
-    budgetMapContainer.innerHTML = ""; // Clear budget map container
-  } else {
-    console.error("Critical: THINKING_BUDGET_MAP_container not found!");
-    return; // Cannot proceed
-  }
-
-  // 2. Populate THINKING_MODELS and build the map
-  if (Array.isArray(config.THINKING_MODELS)) {
-    const container = document.getElementById("THINKING_MODELS_container");
-    if (container) {
-      config.THINKING_MODELS.forEach((modelName) => {
-        if (modelName && typeof modelName === "string" && modelName.trim()) {
-          const trimmedModelName = modelName.trim();
-          const modelId = addArrayItemWithValue(
-            "THINKING_MODELS",
-            trimmedModelName
-          );
-          if (modelId) {
-            modelIdMap[trimmedModelName] = modelId;
-          } else {
-            console.warn(
-              `Failed to get modelId for THINKING_MODEL: '${trimmedModelName}'`
-            );
-          }
-        } else {
-          console.warn(`Invalid THINKING_MODEL entry found:`, modelName);
-        }
-      });
-    } else {
-      console.error("Critical: THINKING_MODELS_container not found!");
-    }
-  }
-
-  // 3. Populate THINKING_BUDGET_MAP using the map
-  let budgetItemsAdded = false;
-  if (
-    config.THINKING_BUDGET_MAP &&
-    typeof config.THINKING_BUDGET_MAP === "object"
-  ) {
-    for (const [modelName, budgetValue] of Object.entries(
-      config.THINKING_BUDGET_MAP
-    )) {
-      if (modelName && typeof modelName === "string") {
-        const trimmedModelName = modelName.trim();
-        const modelId = modelIdMap[trimmedModelName]; // Look up the ID
-        if (modelId) {
-          createAndAppendBudgetMapItem(trimmedModelName, budgetValue, modelId);
-          budgetItemsAdded = true;
-        } else {
-          console.warn(
-            `Budget map: Could not find model ID for '${trimmedModelName}'. Skipping budget item.`
-          );
-        }
+  // Populate simple fields
+  for (const [key, value] of Object.entries(config)) {
+    const element = document.getElementById(key);
+    if (element) {
+      if (element.type === "checkbox") {
+        element.checked = !!value;
       } else {
-        console.warn(`Invalid key found in THINKING_BUDGET_MAP:`, modelName);
+        element.value = value !== null && value !== undefined ? value : "";
       }
     }
-  }
-  if (!budgetItemsAdded && budgetMapContainer) {
-    budgetMapContainer.innerHTML =
-      '<div class="text-gray-500 text-sm italic">请在上方添加思考模型，预算将自动关联。</div>';
   }
 
   // Populate CUSTOM_HEADERS
