@@ -411,7 +411,7 @@ function handleBulkAddApiKeys() {
   const bulkText = apiKeyBulkInput.value;
   const extractedKeys = bulkText.match(API_KEY_REGEX) || [];
 
-  // 合并现有密钥和新密钥，去重
+  // Merge existing and new keys, ensuring uniqueness
   const combinedKeys = new Set([...allApiKeys, ...extractedKeys]);
   const uniqueKeys = Array.from(combinedKeys);
 
