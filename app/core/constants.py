@@ -18,24 +18,3 @@ DEFAULT_TOP_K = 40
 # 正则表达式模式
 IMAGE_URL_PATTERN = r"!\[(.*?)\]\((.*?)\)"
 DATA_URL_PATTERN = r"data:([^;]+);base64,(.+)"
-
-# Audio/Video Settings
-SUPPORTED_AUDIO_FORMATS = ["wav", "mp3", "flac", "ogg"]
-SUPPORTED_VIDEO_FORMATS = ["mp4", "mov", "avi", "webm"]
-MAX_AUDIO_SIZE_BYTES = 50 * 1024 * 1024  # Example: 50MB limit for Base64 payload
-MAX_VIDEO_SIZE_BYTES = 200 * 1024 * 1024  # Example: 200MB limit
-
-# Optional: Define MIME type mappings if needed, or handle directly in converter
-AUDIO_FORMAT_TO_MIMETYPE = {
-    "wav": "audio/wav",
-    "mp3": "audio/mpeg",
-    "flac": "audio/flac",
-    "ogg": "audio/ogg",
-}
-
-VIDEO_FORMAT_TO_MIMETYPE = {
-    "mp4": "video/mp4",
-    "mov": "video/quicktime",
-    "avi": "video/x-msvideo",
-    "webm": "video/webm",
-}
