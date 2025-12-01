@@ -194,107 +194,38 @@ document.addEventListener("DOMContentLoaded", function () {
 
   initializeSensitiveFields(); // Initialize sensitive field handling
 
-  // Vertex Express API Key Modal Elements and Events
-  const addVertexApiKeyBtn = document.getElementById("addVertexApiKeyBtn");
-  const closeVertexApiKeyModalBtn = document.getElementById(
-    "closeVertexApiKeyModalBtn"
-  );
-  const cancelAddVertexApiKeyBtn = document.getElementById(
-    "cancelAddVertexApiKeyBtn"
-  );
-  const confirmAddVertexApiKeyBtn = document.getElementById(
-    "confirmAddVertexApiKeyBtn"
-  );
-  const bulkDeleteVertexApiKeyBtn = document.getElementById(
-    "bulkDeleteVertexApiKeyBtn"
-  );
-  const closeBulkDeleteVertexModalBtn = document.getElementById(
-    "closeBulkDeleteVertexModalBtn"
-  );
-  const cancelBulkDeleteVertexApiKeyBtn = document.getElementById(
-    "cancelBulkDeleteVertexApiKeyBtn"
-  );
-  const confirmBulkDeleteVertexApiKeyBtn = document.getElementById(
-    "confirmBulkDeleteVertexApiKeyBtn"
-  );
-
-  if (addVertexApiKeyBtn) {
-    addVertexApiKeyBtn.addEventListener("click", () => {
-      openModal(vertexApiKeyModal);
-      if (vertexApiKeyBulkInput) vertexApiKeyBulkInput.value = "";
-    });
-  }
-  if (closeVertexApiKeyModalBtn)
-    closeVertexApiKeyModalBtn.addEventListener("click", () =>
-      closeModal(vertexApiKeyModal)
-    );
-  if (cancelAddVertexApiKeyBtn)
-    cancelAddVertexApiKeyBtn.addEventListener("click", () =>
-      closeModal(vertexApiKeyModal)
-    );
-  if (confirmAddVertexApiKeyBtn)
-    confirmAddVertexApiKeyBtn.addEventListener(
-      "click",
-      handleBulkAddVertexApiKeys
-    );
-
-  if (bulkDeleteVertexApiKeyBtn) {
-    bulkDeleteVertexApiKeyBtn.addEventListener("click", () => {
-      openModal(bulkDeleteVertexApiKeyModal);
-      if (bulkDeleteVertexApiKeyInput) bulkDeleteVertexApiKeyInput.value = "";
-    });
-  }
-  if (closeBulkDeleteVertexModalBtn)
-    closeBulkDeleteVertexModalBtn.addEventListener("click", () =>
-      closeModal(bulkDeleteVertexApiKeyModal)
-    );
-  if (cancelBulkDeleteVertexApiKeyBtn)
-    cancelBulkDeleteVertexApiKeyBtn.addEventListener("click", () =>
-      closeModal(bulkDeleteVertexApiKeyModal)
-    );
-  if (confirmBulkDeleteVertexApiKeyBtn)
-    confirmBulkDeleteVertexApiKeyBtn.addEventListener(
-      "click",
-      handleBulkDeleteVertexApiKeys
-    );
-
   // Model Helper Modal Event Listeners
-  if (closeModelHelperModalBtn) {
-    closeModelHelperModalBtn.addEventListener("click", () =>
-      closeModal(modelHelperModal)
-    );
-  }
-  if (cancelModelHelperBtn) {
-    cancelModelHelperBtn.addEventListener("click", () =>
-      closeModal(modelHelperModal)
-    );
-  }
-  if (modelHelperSearchInput) {
-    modelHelperSearchInput.addEventListener("input", () =>
-      renderModelsInModal()
-    );
-  }
+  document.getElementById("closeModelHelperModalBtn")?.addEventListener("click", () => closeModal(modelHelperModal));
+  document.getElementById("cancelModelHelperBtn")?.addEventListener("click", () => closeModal(modelHelperModal));
+  modelHelperSearchInput?.addEventListener("input", () => renderModelsInModal());
 
   // Add event listeners to all model helper trigger buttons
-  const modelHelperTriggerBtns = document.querySelectorAll(
-    ".model-helper-trigger-btn"
-  );
-  modelHelperTriggerBtns.forEach((btn) => {
+  document.querySelectorAll(".model-helper-trigger-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const targetInputId = btn.dataset.targetInputId;
-      const targetArrayKey = btn.dataset.targetArrayKey;
-
       if (targetInputId) {
-        currentModelHelperTarget = {
-          type: "input",
-          target: document.getElementById(targetInputId),
-        };
-      } else if (targetArrayKey) {
-        currentModelHelperTarget = { type: "array", targetKey: targetArrayKey };
+        currentModelHelperTarget = { type: "input", target: document.getElementById(targetInputId) };
+        openModelHelperModal();
       }
-      openModelHelperModal();
     });
   });
+
+  // Link enabled state of auto-delete checkboxes and selects
+  const autoDeleteErrorCheckbox = document.getElementById("AUTO_DELETE_ERROR_LOGS_ENABLED");
+  const autoDeleteErrorSelect = document.getElementById("AUTO_DELETE_ERROR_LOGS_DAYS");
+  if(autoDeleteErrorCheckbox && autoDeleteErrorSelect) {
+      autoDeleteErrorCheckbox.addEventListener('change', () => {
+          autoDeleteErrorSelect.disabled = !autoDeleteErrorCheckbox.checked;
+      });
+  }
+
+  const autoDeleteRequestCheckbox = document.getElementById("AUTO_DELETE_REQUEST_LOGS_ENABLED");
+  const autoDeleteRequestSelect = document.getElementById("AUTO_DELETE_REQUEST_LOGS_DAYS");
+  if(autoDeleteRequestCheckbox && autoDeleteRequestSelect) {
+      autoDeleteRequestCheckbox.addEventListener('change', () => {
+          autoDeleteRequestSelect.disabled = !autoDeleteRequestCheckbox.checked;
+      });
+  }
 }); // <-- DOMContentLoaded end
 
 /**
