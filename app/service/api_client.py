@@ -1,6 +1,4 @@
 # app/services/chat/api_client.py
-
-import random
 from abc import ABC, abstractmethod
 from typing import Any, AsyncGenerator, Dict, Optional
 
