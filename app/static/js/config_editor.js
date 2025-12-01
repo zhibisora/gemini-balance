@@ -921,54 +921,12 @@ function createRemoveButton() {
     "remove-btn text-gray-400 hover:text-red-500 focus:outline-none transition-colors duration-150";
   removeBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
   removeBtn.title = "删除";
-  // Event listener will be added via delegation in DOMContentLoaded
   return removeBtn;
 }
 
-/**
- * Creates a proxy status icon for displaying proxy check status.
- * @returns {HTMLSpanElement} The status icon element.
- */
-function createProxyStatusIcon() {
-  const statusIcon = document.createElement("span");
-  statusIcon.className = "proxy-status-icon px-2 py-2 text-gray-400";
-  statusIcon.innerHTML = '<i class="fas fa-question-circle" title="未检测"></i>';
-  statusIcon.setAttribute("data-status", "unknown");
-  return statusIcon;
-}
-
-/**
- * Creates a proxy check button for individual proxy checking.
- * @returns {HTMLButtonElement} The check button element.
- */
-function createProxyCheckButton() {
-  const checkBtn = document.createElement("button");
-  checkBtn.type = "button";
-  checkBtn.className =
-    "proxy-check-btn px-2 py-2 text-blue-500 hover:text-blue-700 focus:outline-none transition-colors duration-150 rounded-r-md";
-  checkBtn.innerHTML = '<i class="fas fa-globe"></i>';
-  checkBtn.title = "检测此代理";
-  
-  // 添加点击事件监听器
-  checkBtn.addEventListener("click", function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    const inputElement = this.closest('.flex').querySelector('.array-input');
-    if (inputElement && inputElement.value.trim()) {
-      checkSingleProxy(inputElement.value.trim(), this);
-    } else {
-      showNotification("请先输入代理地址", "warning");
-    }
-  });
-  
-  return checkBtn;
-}
-
-/**
- * Adds a new item to an array configuration section (e.g., API_KEYS, ALLOWED_TOKENS).
- * This function is typically called by a "+" button.
- * @param {string} key - The configuration key for the array (e.g., 'API_KEYS').
- */
+// The `addArrayItem` function was removed as it's not directly called by any element in the new HTML.
+// Adding items is now handled by bulk modals or specific buttons like `addCustomHeaderBtn`.
+/*
 function addArrayItem(key) {
   const container = document.getElementById(`${key}_container`);
   if (!container) return;
