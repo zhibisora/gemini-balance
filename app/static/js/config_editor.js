@@ -1564,14 +1564,6 @@ function showNotification(message, type = "info") {
 
 /**
  * Refreshes the current page.
- * @param {HTMLButtonElement} [button] - The button that triggered the refresh (to show loading state).
- */
-function refreshPage(button) {
-  if (button) button.classList.add("loading");
-  location.reload();
-}
-
-/**
  * Scrolls the page to the top.
  */
 function scrollToTop() {
