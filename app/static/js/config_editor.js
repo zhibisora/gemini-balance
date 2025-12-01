@@ -1770,23 +1770,14 @@ async function openModelHelperModal() {
   renderModelsInModal(); // Render them (handles empty/error cases internally)
 
   if (modelHelperTitleElement) {
-    if (
-      currentModelHelperTarget.type === "input" &&
-      currentModelHelperTarget.target
-    ) {
-      const label = document.querySelector(
-        `label[for="${currentModelHelperTarget.target.id}"]`
-      );
-      modelHelperTitleElement.textContent = label
-        ? `为 "${label.textContent.trim()}" 选择模型`
-        : "选择模型";
-    } else if (currentModelHelperTarget.type === "array") {
-      modelHelperTitleElement.textContent = `为 ${currentModelHelperTarget.targetKey} 添加模型`;
+    if (currentModelHelperTarget.type === "input" && currentModelHelperTarget.target) {
+      const label = document.querySelector(`label[for="${currentModelHelperTarget.target.id}"]`);
+      modelHelperTitleElement.textContent = label ? `Select model for "${label.textContent.trim()}"` : "Select Model";
     } else {
-      modelHelperTitleElement.textContent = "选择模型";
+      modelHelperTitleElement.textContent = "Select Model";
     }
   }
-  if (modelHelperSearchInput) modelHelperSearchInput.value = ""; // Clear search on open
+  if (modelHelperSearchInput) modelHelperSearchInput.value = "";
   if (modelHelperModal) openModal(modelHelperModal);
 }
 
