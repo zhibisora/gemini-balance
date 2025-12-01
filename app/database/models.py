@@ -2,8 +2,7 @@
 数据库模型模块
 """
 import datetime
-from sqlalchemy import Column, Integer, String, Text, DateTime, JSON, Boolean, BigInteger, Enum
-import enum
+from sqlalchemy import JSON, Boolean, Column, DateTime, Integer, String, Text
 
 from app.database.connection import Base
 
