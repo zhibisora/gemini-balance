@@ -888,10 +888,6 @@ function createArrayInput(key, value, isSensitive, modelId = null) {
     inputClasses += ` ${SENSITIVE_INPUT_CLASS}`;
   }
   input.className = inputClasses;
-  if (modelId) {
-    input.setAttribute("data-model-id", modelId);
-    input.placeholder = "思考模型名称";
-  }
   return input;
 }
 
