@@ -353,7 +353,7 @@ function populateForm(config) {
     typeof config.CUSTOM_HEADERS === "object"
   ) {
     for (const [key, value] of Object.entries(config.CUSTOM_HEADERS)) {
-      createAndAppendCustomHeaderItem(key, value);
+      createAndAppendCustomHeaderItem(key, value); // This function will be defined later
       customHeadersAdded = true;
     }
   }
