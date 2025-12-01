@@ -73,10 +73,6 @@ class KeyManager:
         else:
             return ""
 
-    def get_fail_count(self, key: str) -> int:
-        """获取指定密钥的失败次数"""
-        return self.key_failure_counts.get(key, 0)
-
     async def get_all_keys_with_fail_count(self) -> dict:
         """获取所有API key及其失败次数"""
         all_keys = {}
