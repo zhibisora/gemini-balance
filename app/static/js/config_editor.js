@@ -157,69 +157,34 @@ document.addEventListener("DOMContentLoaded", function () {
       if (removeButton && removeButton.closest(`.${ARRAY_ITEM_CLASS}`)) {
         const arrayItem = removeButton.closest(`.${ARRAY_ITEM_CLASS}`);
         const parentContainer = arrayItem.parentElement;
-        const isThinkingModelItem =
-          arrayItem.hasAttribute("data-model-id") &&
-          parentContainer &&
-          parentContainer.id === "THINKING_MODELS_container";
-        const isSafetySettingItem = arrayItem.classList.contains(
-          SAFETY_SETTING_ITEM_CLASS
-        );
+        const key = parentContainer.id.replace("_container", "");
 
-        if (isThinkingModelItem) {
-          const modelId = arrayItem.getAttribute("data-model-id");
-          const budgetMapItem = document.querySelector(
-            `.${MAP_ITEM_CLASS}[data-model-id="${modelId}"]`
-          );
-          if (budgetMapItem) {
-            budgetMapItem.remove();
-          }
-          // Check and add placeholder for budget map if empty
-          const budgetContainer = document.getElementById(
-            "THINKING_BUDGET_MAP_container"
-          );
-          if (budgetContainer && budgetContainer.children.length === 0) {
-            budgetContainer.innerHTML =
-              '<div class="text-gray-500 text-sm italic">请在上方添加思考模型，预算将自动关联。</div>';
-          }
+        if (key === "API_KEYS") {
+          const keyToRemove = arrayItem.querySelector(`.${ARRAY_INPUT_CLASS}`).getAttribute('data-real-value');
+          allApiKeys = allApiKeys.filter(k => k !== keyToRemove);
+          filteredApiKeys = filteredApiKeys.filter(k => k !== keyToRemove);
+          renderApiKeyPage();
+          updateApiKeyPagination();
+        } else if (key === "CUSTOM_HEADERS") {
+            arrayItem.remove();
+            if (parentContainer.children.length === 0) {
+                parentContainer.innerHTML = '<div class="text-gray-500 text-sm italic">添加自定义请求头，例如 X-Api-Key: your-key</div>';
+            }
+        } else {
+          arrayItem.remove();
         }
-        arrayItem.remove();
-        // Check and add placeholder for safety settings if empty
-        if (
-          isSafetySettingItem &&
-          parentContainer &&
-          parentContainer.children.length === 0
-        ) {
-          parentContainer.innerHTML =
-            '<div class="text-gray-500 text-sm italic">定义模型的安全过滤阈值。</div>';
-        }
-      } else if (
-        generateButton &&
-        generateButton.closest(`.${ARRAY_ITEM_CLASS}`)
-      ) {
-        const inputField = generateButton
-          .closest(`.${ARRAY_ITEM_CLASS}`)
-          .querySelector(`.${ARRAY_INPUT_CLASS}`);
+      } else if (generateButton && generateButton.closest(`.${ARRAY_ITEM_CLASS}`)) {
+        const inputField = generateButton.closest(`.${ARRAY_ITEM_CLASS}`).querySelector(`.${ARRAY_INPUT_CLASS}`);
         if (inputField) {
           const newToken = generateRandomToken();
           inputField.value = newToken;
           if (inputField.classList.contains(SENSITIVE_INPUT_CLASS)) {
-            const event = new Event("focusout", {
-              bubbles: true,
-              cancelable: true,
-            });
-            inputField.dispatchEvent(event);
+            inputField.dispatchEvent(new Event("focusout", { bubbles: true, cancelable: true }));
           }
           showNotification("已生成新令牌", "success");
         }
       }
     });
-  }
-
-  // Add Safety Setting button
-  const addSafetySettingBtn = document.getElementById("addSafetySettingBtn");
-  if (addSafetySettingBtn) {
-    addSafetySettingBtn.addEventListener("click", () => addSafetySettingItem());
-  }
 
   // Add Custom Header button
   const addCustomHeaderBtn = document.getElementById("addCustomHeaderBtn");
