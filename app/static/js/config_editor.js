@@ -1701,14 +1701,9 @@ async function fetchModels() {
       const errorData = await response.text();
       throw new Error(`HTTP error ${response.status}: ${errorData}`);
     }
-    const responseData = await response.json(); // Changed variable name to responseData
-    // The backend returns an object like: { object: "list", data: [{id: "m1"}, {id: "m2"}], success: true }
-    if (
-      responseData &&
-      responseData.success &&
-      Array.isArray(responseData.data)
-    ) {
-      cachedModelsList = responseData.data; // Use responseData.data
+    const responseData = await response.json();
+    if (responseData && Array.isArray(responseData.models)) {
+      cachedModelsList = responseData.models.map(m => ({ id: m.name.replace('models/', '') }));
       showNotification("模型列表加载成功", "success");
       return cachedModelsList;
     } else {
