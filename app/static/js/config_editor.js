@@ -1545,17 +1545,14 @@ function showNotification(message, type = "info") {
   const notification = document.getElementById("notification");
   notification.textContent = message;
 
-  // 统一样式为黑色半透明，与 keys_status.js 保持一致
   notification.classList.remove("bg-danger-500");
   notification.classList.add("bg-black");
   notification.style.backgroundColor = "rgba(0,0,0,0.8)";
   notification.style.color = "#fff";
 
-  // 应用过渡效果
   notification.style.opacity = "1";
   notification.style.transform = "translate(-50%, 0)";
 
-  // 设置自动消失
   setTimeout(() => {
     notification.style.opacity = "0";
     notification.style.transform = "translate(-50%, 10px)";
