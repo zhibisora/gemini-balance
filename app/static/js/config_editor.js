@@ -87,249 +87,69 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // Save button
-  const saveBtn = document.getElementById("saveBtn");
-  if (saveBtn) {
-    saveBtn.addEventListener("click", saveConfig);
-  }
-
-  // Reset button
-  const resetBtn = document.getElementById("resetBtn");
-  if (resetBtn) {
-    resetBtn.addEventListener("click", resetConfig); // resetConfig will open the modal
-  }
+  // Main Action Buttons
+  document.getElementById("saveBtn")?.addEventListener("click", saveConfig);
+  document.getElementById("resetBtn")?.addEventListener("click", resetConfig);
 
   // Scroll buttons
   window.addEventListener("scroll", toggleScrollButtons);
 
   // API Key Modal Elements and Events
-  const addApiKeyBtn = document.getElementById("addApiKeyBtn");
-  const closeApiKeyModalBtn = document.getElementById("closeApiKeyModalBtn");
-  const cancelAddApiKeyBtn = document.getElementById("cancelAddApiKeyBtn");
-  const confirmAddApiKeyBtn = document.getElementById("confirmAddApiKeyBtn");
-
-  if (addApiKeyBtn) {
-    addApiKeyBtn.addEventListener("click", () => {
-      openModal(apiKeyModal);
-      if (apiKeyBulkInput) apiKeyBulkInput.value = "";
-    });
-  }
-  if (closeApiKeyModalBtn)
-    closeApiKeyModalBtn.addEventListener("click", () =>
-      closeModal(apiKeyModal)
-    );
-  if (cancelAddApiKeyBtn)
-    cancelAddApiKeyBtn.addEventListener("click", () => closeModal(apiKeyModal));
-  if (confirmAddApiKeyBtn)
-    confirmAddApiKeyBtn.addEventListener("click", handleBulkAddApiKeys);
-  if (apiKeySearchInput)
-    apiKeySearchInput.addEventListener("input", handleApiKeySearch);
+  document.getElementById("addApiKeyBtn")?.addEventListener("click", () => {
+    openModal(apiKeyModal);
+    if (apiKeyBulkInput) apiKeyBulkInput.value = "";
+  });
+  document.getElementById("closeApiKeyModalBtn")?.addEventListener("click", () => closeModal(apiKeyModal));
+  document.getElementById("cancelAddApiKeyBtn")?.addEventListener("click", () => closeModal(apiKeyModal));
+  document.getElementById("confirmAddApiKeyBtn")?.addEventListener("click", handleBulkAddApiKeys);
+  apiKeySearchInput?.addEventListener("input", handleApiKeySearch);
 
   // API Key Pagination Event Listeners
-  const apiKeyPrevBtn = document.getElementById("apiKeyPrevBtn");
-  const apiKeyNextBtn = document.getElementById("apiKeyNextBtn");
-  
-  if (apiKeyPrevBtn) {
-    apiKeyPrevBtn.addEventListener("click", prevApiKeyPage);
-  }
-  if (apiKeyNextBtn) {
-    apiKeyNextBtn.addEventListener("click", nextApiKeyPage);
-  }
+  document.getElementById("apiKeyPrevBtn")?.addEventListener("click", prevApiKeyPage);
+  document.getElementById("apiKeyNextBtn")?.addEventListener("click", nextApiKeyPage);
 
   // Bulk Delete API Key Modal Elements and Events
-  const bulkDeleteApiKeyBtn = document.getElementById("bulkDeleteApiKeyBtn");
-  const closeBulkDeleteModalBtn = document.getElementById(
-    "closeBulkDeleteModalBtn"
-  );
-  const cancelBulkDeleteApiKeyBtn = document.getElementById(
-    "cancelBulkDeleteApiKeyBtn"
-  );
-  const confirmBulkDeleteApiKeyBtn = document.getElementById(
-    "confirmBulkDeleteApiKeyBtn"
-  );
-
-  if (bulkDeleteApiKeyBtn) {
-    bulkDeleteApiKeyBtn.addEventListener("click", () => {
-      openModal(bulkDeleteApiKeyModal);
-      if (bulkDeleteApiKeyInput) bulkDeleteApiKeyInput.value = "";
-    });
-  }
-  if (closeBulkDeleteModalBtn)
-    closeBulkDeleteModalBtn.addEventListener("click", () =>
-      closeModal(bulkDeleteApiKeyModal)
-    );
-  if (cancelBulkDeleteApiKeyBtn)
-    cancelBulkDeleteApiKeyBtn.addEventListener("click", () =>
-      closeModal(bulkDeleteApiKeyModal)
-    );
-  if (confirmBulkDeleteApiKeyBtn)
-    confirmBulkDeleteApiKeyBtn.addEventListener(
-      "click",
-      handleBulkDeleteApiKeys
-    );
-
-  // Proxy Modal Elements and Events
-  const addProxyBtn = document.getElementById("addProxyBtn");
-  const closeProxyModalBtn = document.getElementById("closeProxyModalBtn");
-  const cancelAddProxyBtn = document.getElementById("cancelAddProxyBtn");
-  const confirmAddProxyBtn = document.getElementById("confirmAddProxyBtn");
-  
-  // Proxy Check Elements and Events
-  const checkAllProxiesBtn = document.getElementById("checkAllProxiesBtn");
-  const proxyCheckModal = document.getElementById("proxyCheckModal");
-  const closeProxyCheckModalBtn = document.getElementById("closeProxyCheckModalBtn");
-  const closeProxyCheckBtn = document.getElementById("closeProxyCheckBtn");
-  const retryFailedProxiesBtn = document.getElementById("retryFailedProxiesBtn");
-
-  if (addProxyBtn) {
-    addProxyBtn.addEventListener("click", () => {
-      openModal(proxyModal);
-      if (proxyBulkInput) proxyBulkInput.value = "";
-    });
-  }
-  
-  if (checkAllProxiesBtn) {
-    checkAllProxiesBtn.addEventListener("click", checkAllProxies);
-  }
-  
-  if (closeProxyCheckModalBtn) {
-    closeProxyCheckModalBtn.addEventListener("click", () => closeModal(proxyCheckModal));
-  }
-  
-  if (closeProxyCheckBtn) {
-    closeProxyCheckBtn.addEventListener("click", () => closeModal(proxyCheckModal));
-  }
-  
-  if (retryFailedProxiesBtn) {
-    retryFailedProxiesBtn.addEventListener("click", () => {
-      // 重试失败的代理检测
-      checkAllProxies();
-    });
-  }
-  if (closeProxyModalBtn)
-    closeProxyModalBtn.addEventListener("click", () => closeModal(proxyModal));
-  if (cancelAddProxyBtn)
-    cancelAddProxyBtn.addEventListener("click", () => closeModal(proxyModal));
-  if (confirmAddProxyBtn)
-    confirmAddProxyBtn.addEventListener("click", handleBulkAddProxies);
-
-  // Bulk Delete Proxy Modal Elements and Events
-  const bulkDeleteProxyBtn = document.getElementById("bulkDeleteProxyBtn");
-  const closeBulkDeleteProxyModalBtn = document.getElementById(
-    "closeBulkDeleteProxyModalBtn"
-  );
-  const cancelBulkDeleteProxyBtn = document.getElementById(
-    "cancelBulkDeleteProxyBtn"
-  );
-  const confirmBulkDeleteProxyBtn = document.getElementById(
-    "confirmBulkDeleteProxyBtn"
-  );
-
-  if (bulkDeleteProxyBtn) {
-    bulkDeleteProxyBtn.addEventListener("click", () => {
-      openModal(bulkDeleteProxyModal);
-      if (bulkDeleteProxyInput) bulkDeleteProxyInput.value = "";
-    });
-  }
-  if (closeBulkDeleteProxyModalBtn)
-    closeBulkDeleteProxyModalBtn.addEventListener("click", () =>
-      closeModal(bulkDeleteProxyModal)
-    );
-  if (cancelBulkDeleteProxyBtn)
-    cancelBulkDeleteProxyBtn.addEventListener("click", () =>
-      closeModal(bulkDeleteProxyModal)
-    );
-  if (confirmBulkDeleteProxyBtn)
-    confirmBulkDeleteProxyBtn.addEventListener(
-      "click",
-      handleBulkDeleteProxies
-    );
+  document.getElementById("bulkDeleteApiKeyBtn")?.addEventListener("click", () => {
+    openModal(bulkDeleteApiKeyModal);
+    if (bulkDeleteApiKeyInput) bulkDeleteApiKeyInput.value = "";
+  });
+  document.getElementById("closeBulkDeleteModalBtn")?.addEventListener("click", () => closeModal(bulkDeleteApiKeyModal));
+  document.getElementById("cancelBulkDeleteApiKeyBtn")?.addEventListener("click", () => closeModal(bulkDeleteApiKeyModal));
+  document.getElementById("confirmBulkDeleteApiKeyBtn")?.addEventListener("click", handleBulkDeleteApiKeys);
 
   // Reset Confirmation Modal Elements and Events
-  const closeResetModalBtn = document.getElementById("closeResetModalBtn");
-  const cancelResetBtn = document.getElementById("cancelResetBtn");
-  const confirmResetBtn = document.getElementById("confirmResetBtn");
-
-  if (closeResetModalBtn)
-    closeResetModalBtn.addEventListener("click", () =>
-      closeModal(resetConfirmModal)
-    );
-  if (cancelResetBtn)
-    cancelResetBtn.addEventListener("click", () =>
-      closeModal(resetConfirmModal)
-    );
-  if (confirmResetBtn) {
-    confirmResetBtn.addEventListener("click", () => {
-      closeModal(resetConfirmModal);
-      executeReset();
-    });
-  }
+  document.getElementById("closeResetModalBtn")?.addEventListener("click", () => closeModal(resetConfirmModal));
+  document.getElementById("cancelResetBtn")?.addEventListener("click", () => closeModal(resetConfirmModal));
+  document.getElementById("confirmResetBtn")?.addEventListener("click", () => {
+    closeModal(resetConfirmModal);
+    executeReset();
+  });
 
   // Click outside modal to close
   window.addEventListener("click", (event) => {
-    const modals = [
-      apiKeyModal,
-      resetConfirmModal,
-      bulkDeleteApiKeyModal,
-      proxyModal,
-      bulkDeleteProxyModal,
-      vertexApiKeyModal, // 新增
-      bulkDeleteVertexApiKeyModal, // 新增
-      modelHelperModal,
-    ];
-    modals.forEach((modal) => {
+    [apiKeyModal, resetConfirmModal, bulkDeleteApiKeyModal, modelHelperModal].forEach((modal) => {
       if (event.target === modal) {
         closeModal(modal);
       }
     });
   });
 
-  // Removed static token generation button event listener, now handled dynamically if needed or by specific buttons.
-
   // Authentication token generation button
   const generateAuthTokenBtn = document.getElementById("generateAuthTokenBtn");
   const authTokenInput = document.getElementById("AUTH_TOKEN");
   if (generateAuthTokenBtn && authTokenInput) {
     generateAuthTokenBtn.addEventListener("click", function () {
-      const newToken = generateRandomToken(); // Assuming generateRandomToken is defined elsewhere
+      const newToken = generateRandomToken();
       authTokenInput.value = newToken;
       if (authTokenInput.classList.contains(SENSITIVE_INPUT_CLASS)) {
-        const event = new Event("focusout", {
-          bubbles: true,
-          cancelable: true,
-        });
-        authTokenInput.dispatchEvent(event);
+        authTokenInput.dispatchEvent(new Event("focusout", { bubbles: true, cancelable: true }));
       }
       showNotification("已生成新认证令牌", "success");
     });
   }
 
-  // Event delegation for THINKING_MODELS input changes to update budget map keys
-  if (thinkingModelsContainer) {
-    thinkingModelsContainer.addEventListener("input", function (event) {
-      const target = event.target;
-      if (
-        target &&
-        target.classList.contains(ARRAY_INPUT_CLASS) &&
-        target.closest(`.${ARRAY_ITEM_CLASS}[data-model-id]`)
-      ) {
-        const modelInput = target;
-        const modelItem = modelInput.closest(`.${ARRAY_ITEM_CLASS}`);
-        const modelId = modelItem.getAttribute("data-model-id");
-        const budgetKeyInput = document.querySelector(
-          `.${MAP_KEY_INPUT_CLASS}[data-model-id="${modelId}"]`
-        );
-        if (budgetKeyInput) {
-          budgetKeyInput.value = modelInput.value;
-        }
-      }
-    });
-  }
-
   // Event delegation for dynamically added remove buttons and generate token buttons within array items
-  if (configForm) {
-    // Ensure configForm exists before adding event listener
-    configForm.addEventListener("click", function (event) {
+  configForm?.addEventListener("click", function (event) {
       const target = event.target;
       const removeButton = target.closest(".remove-btn");
       const generateButton = target.closest(".generate-btn");
