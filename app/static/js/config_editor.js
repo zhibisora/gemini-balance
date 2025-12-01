@@ -37,19 +37,33 @@ function closeModal(modalElement) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+  // Assign DOM Elements
+  apiKeyModal = document.getElementById("apiKeyModal");
+  apiKeyBulkInput = document.getElementById("apiKeyBulkInput");
+  apiKeySearchInput = document.getElementById("apiKeySearchInput");
+  bulkDeleteApiKeyModal = document.getElementById("bulkDeleteApiKeyModal");
+  bulkDeleteApiKeyInput = document.getElementById("bulkDeleteApiKeyInput");
+  resetConfirmModal = document.getElementById("resetConfirmModal");
+  configForm = document.getElementById("configForm");
+  modelHelperModal = document.getElementById("modelHelperModal");
+  modelHelperTitleElement = document.getElementById("modelHelperTitle");
+  modelHelperSearchInput = document.getElementById("modelHelperSearchInput");
+  modelHelperListContainer = document.getElementById("modelHelperListContainer");
+
   // Initialize configuration
   initConfig();
 
   // Tab switching
-  const tabButtons = document.querySelectorAll(".tab-btn");
-  tabButtons.forEach((button) => {
+  document.querySelectorAll(".tab-btn").forEach((button) => {
     button.addEventListener("click", function (e) {
       e.stopPropagation();
-      const tabId = this.getAttribute("data-tab");
-      switchTab(tabId);
+      switchTab(this.getAttribute("data-tab"));
     });
   });
 
+  // The original JS had a section for upload provider switching, which is not in the HTML.
+  // I am removing it to match the HTML.
+  /*
   // Upload provider switching
   const uploadProviderSelect = document.getElementById("UPLOAD_PROVIDER");
   if (uploadProviderSelect) {
