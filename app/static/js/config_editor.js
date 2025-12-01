@@ -252,11 +252,7 @@ function initializeSensitiveFields() {
     if (field.hasAttribute("data-real-value")) {
       field.value = field.getAttribute("data-real-value");
     }
-    // If no data-real-value and value is MASKED_VALUE, it might be an initial empty sensitive field, clear it
-    else if (
-      field.value === MASKED_VALUE &&
-      !field.hasAttribute("data-real-value")
-    ) {
+    else if (field.value === MASKED_VALUE && !field.hasAttribute("data-real-value")) {
       field.value = "";
     }
   }
