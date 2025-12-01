@@ -1505,33 +1505,15 @@ async function executeReset() {
     const config = await response.json();
     populateForm(config);
     // Re-initialize masking for sensitive fields after reset
-    if (configForm && typeof initializeSensitiveFields === "function") {
-      const sensitiveFields = configForm.querySelectorAll(
-        `.${SENSITIVE_INPUT_CLASS}`
-      );
-      sensitiveFields.forEach((field) => {
-        if (field.type === "password") {
-          if (field.value) field.setAttribute("data-real-value", field.value);
-        } else if (
-          field.type === "text" ||
-          field.tagName.toLowerCase() === "textarea"
-        ) {
-          const focusoutEvent = new Event("focusout", {
-            bubbles: true,
-            cancelable: true,
-          });
-          field.dispatchEvent(focusoutEvent);
-        }
-      });
-    }
+    initializeSensitiveFields();
+
     showNotification("配置已重置为默认值", "success");
 
-    // 3. 启动新的定时任务
+    // 3. Start new scheduler task
     await startScheduler();
   } catch (error) {
     console.error("重置配置失败:", error);
     showNotification("重置配置失败: " + error.message, "error");
-    // 重置失败时，也尝试重启定时任务
     await startScheduler();
   }
 }
