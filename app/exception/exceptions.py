@@ -22,60 +22,6 @@ class APIError(Exception):
         super().__init__(self.detail)
 
 
-class AuthenticationError(APIError):
-    """认证错误"""
-
-    def __init__(self, detail: str = "Authentication failed"):
-        super().__init__(
-            status_code=401, detail=detail, error_code="authentication_error"
-        )
-
-
-class AuthorizationError(APIError):
-    """授权错误"""
-
-    def __init__(self, detail: str = "Not authorized to access this resource"):
-        super().__init__(
-            status_code=403, detail=detail, error_code="authorization_error"
-        )
-
-
-class ResourceNotFoundError(APIError):
-    """资源未找到错误"""
-
-    def __init__(self, detail: str = "Resource not found"):
-        super().__init__(
-            status_code=404, detail=detail, error_code="resource_not_found"
-        )
-
-
-class ModelNotSupportedError(APIError):
-    """模型不支持错误"""
-
-    def __init__(self, model: str):
-        super().__init__(
-            status_code=400,
-            detail=f"Model {model} is not supported",
-            error_code="model_not_supported",
-        )
-
-
-class APIKeyError(APIError):
-    """API密钥错误"""
-
-    def __init__(self, detail: str = "Invalid or expired API key"):
-        super().__init__(status_code=401, detail=detail, error_code="api_key_error")
-
-
-class ServiceUnavailableError(APIError):
-    """服务不可用错误"""
-
-    def __init__(self, detail: str = "Service temporarily unavailable"):
-        super().__init__(
-            status_code=503, detail=detail, error_code="service_unavailable"
-        )
-
-
 class RateLimitExceededError(HTTPException):
     """当TPM速率限制被触发时抛出此异常。"""
 
