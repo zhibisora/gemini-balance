@@ -25,16 +25,6 @@ TEMPLATES_DIR = PROJECT_ROOT / "app" / "templates"
 # 初始化模板引擎，并添加全局变量
 templates = Jinja2Templates(directory="app/templates")
 
-
-# 定义一个函数来更新模板全局变量
-def update_template_globals(app: FastAPI, update_info: dict):
-    # Jinja2Templates 实例没有直接更新全局变量的方法
-    # 我们需要在请求上下文中传递这些变量，或者修改 Jinja 环境
-    # 更简单的方法是将其存储在 app.state 中，并在渲染时传递
-    app.state.update_info = update_info
-    logger.info(f"Update info stored in app.state: {update_info}")
-
-
 # --- Helper functions for lifespan ---
 async def _setup_database_and_config(app_settings):
     """Initializes database, syncs settings, and initializes KeyManager."""
