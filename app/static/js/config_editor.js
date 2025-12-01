@@ -1042,94 +1042,16 @@ function addArrayItemWithValue(key, value) {
   container.appendChild(arrayItem);
 
   // Initialize sensitive field if applicable
-  if (isSensitive && input.value) {
-    if (configForm && typeof initializeSensitiveFields === "function") {
-      const focusoutEvent = new Event("focusout", {
-        bubbles: true,
-        cancelable: true,
-      });
-      input.dispatchEvent(focusoutEvent);
-    }
+  if (isSensitive && input.value && configForm) {
+      input.dispatchEvent(new Event("focusout", { bubbles: true, cancelable: true }));
   }
-  return isThinkingModel ? modelId : null;
-}
-
-/**
- * Creates and appends a DOM element for a thinking model's budget mapping.
- * @param {string} mapKey - The model name (key for the map).
- * @param {number|string} mapValue - The budget value.
- * @param {string} modelId - The unique ID of the corresponding thinking model.
- */
-function createAndAppendBudgetMapItem(mapKey, mapValue, modelId) {
-  const container = document.getElementById("THINKING_BUDGET_MAP_container");
-  if (!container) {
-    console.error(
-      "Cannot add budget item: THINKING_BUDGET_MAP_container not found!"
-    );
-    return;
-  }
-
-  // If container currently only has the placeholder, clear it
-  const placeholder = container.querySelector(".text-gray-500.italic");
-  // Check if the only child is the placeholder before clearing
-  if (
-    placeholder &&
-    container.children.length === 1 &&
-    container.firstChild === placeholder
-  ) {
-    container.innerHTML = "";
-  }
-
-  const mapItem = document.createElement("div");
-  mapItem.className = `${MAP_ITEM_CLASS} flex items-center mb-2 gap-2`;
-  mapItem.setAttribute("data-model-id", modelId);
-
-  const keyInput = document.createElement("input");
-  keyInput.type = "text";
-  keyInput.value = mapKey;
-  keyInput.placeholder = "模型名称 (自动关联)";
-  keyInput.readOnly = true;
-  keyInput.className = `${MAP_KEY_INPUT_CLASS} flex-grow px-3 py-2 border border-gray-300 rounded-md focus:outline-none bg-gray-100 text-gray-500`;
-  keyInput.setAttribute("data-model-id", modelId);
-
-  const valueInput = document.createElement("input");
-  valueInput.type = "number";
-  const intValue = parseInt(mapValue, 10);
-  valueInput.value = isNaN(intValue) ? -1 : intValue;
-  valueInput.placeholder = "预算 (整数)";
-  valueInput.className = `${MAP_VALUE_INPUT_CLASS} w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50`;
-  valueInput.min = -1;
-  valueInput.max = 32767;
-  valueInput.addEventListener("input", function () {
-    let val = this.value.replace(/[^0-9-]/g, "");
-    if (val !== "") {
-      val = parseInt(val, 10);
-      if (val < -1) val = -1;
-      if (val > 32767) val = 32767;
-    }
-    this.value = val; // Corrected variable name
-  });
-
-  // Remove Button - Removed for budget map items
-  // const removeBtn = document.createElement('button');
-  // removeBtn.type = 'button';
-  // removeBtn.className = 'remove-btn text-gray-300 cursor-not-allowed focus:outline-none'; // Kept original class for reference
-  // removeBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
-  // removeBtn.title = '请从上方模型列表删除';
-  // removeBtn.disabled = true;
-
-  mapItem.appendChild(keyInput);
-  mapItem.appendChild(valueInput);
-  // mapItem.appendChild(removeBtn); // Do not append the remove button
-
-  container.appendChild(mapItem);
 }
 
 /**
  * Adds a new custom header item to the DOM.
  */
 function addCustomHeaderItem() {
-  createAndAppendCustomHeaderItem("", "");
+  createAndAppendCustomHeaderItem("", ""); // This function is defined below
 }
 
 /**
@@ -1139,12 +1061,7 @@ function addCustomHeaderItem() {
  */
 function createAndAppendCustomHeaderItem(key, value) {
   const container = document.getElementById("CUSTOM_HEADERS_container");
-  if (!container) {
-    console.error(
-      "Cannot add custom header: CUSTOM_HEADERS_container not found!"
-    );
-    return;
-  }
+  if (!container) return;
 
   const placeholder = container.querySelector(".text-gray-500.italic");
   if (
