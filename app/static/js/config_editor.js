@@ -980,58 +980,36 @@ function addArrayItem(key) {
     createAndAppendBudgetMapItem(newItemValue, -1, modelId); // Default budget -1
   }
 }
+*/
 
 /**
  * Adds an array item with a specific value to the DOM.
- * This is used both for initially populating the form and for adding new items.
- * @param {string} key - The configuration key (e.g., 'API_KEYS', 'THINKING_MODELS').
+ * @param {string} key - The configuration key (e.g., 'API_KEYS').
  * @param {string} value - The value for the array item.
- * @returns {string|null} The generated modelId if it's a thinking model, otherwise null.
  */
 function addArrayItemWithValue(key, value) {
   const container = document.getElementById(`${key}_container`);
-  if (!container) return null;
+  if (!container) return;
 
-  const isThinkingModel = key === "THINKING_MODELS";
   const isAllowedToken = key === "ALLOWED_TOKENS";
-  const isVertexApiKey = key === "VERTEX_API_KEYS"; // 新增判断
-  const isProxy = key === "PROXIES"; // 新增代理判断
-  const isSensitive = key === "API_KEYS" || isAllowedToken || isVertexApiKey; // 更新敏感判断
-  const modelId = isThinkingModel ? generateUUID() : null;
+  const isSensitive = key === "API_KEYS" || isAllowedToken;
 
   const arrayItem = document.createElement("div");
   arrayItem.className = `${ARRAY_ITEM_CLASS} flex items-center mb-2 gap-2`;
-  if (isThinkingModel) {
-    arrayItem.setAttribute("data-model-id", modelId);
-  }
 
   const inputWrapper = document.createElement("div");
   inputWrapper.className =
     "flex items-center flex-grow rounded-md focus-within:border-blue-500 focus-within:ring focus-within:ring-blue-500 focus-within:ring-opacity-50";
-  // Apply light theme border directly via style
   inputWrapper.style.border = "1px solid rgba(0, 0, 0, 0.12)";
-  inputWrapper.style.backgroundColor = "transparent"; // Ensure wrapper is transparent
+  inputWrapper.style.backgroundColor = "transparent";
 
-  const input = createArrayInput(
-    key,
-    value,
-    isSensitive,
-    isThinkingModel ? modelId : null
-  );
+  const input = createArrayInput(key, value, isSensitive);
   inputWrapper.appendChild(input);
 
   if (isAllowedToken) {
     const generateBtn = createGenerateTokenButton();
     inputWrapper.appendChild(generateBtn);
-  } else if (isProxy) {
-    // 为代理添加状态显示和检测按钮
-    const proxyStatusIcon = createProxyStatusIcon();
-    inputWrapper.appendChild(proxyStatusIcon);
-    
-    const proxyCheckBtn = createProxyCheckButton();
-    inputWrapper.appendChild(proxyCheckBtn);
   } else {
-    // Ensure right-side rounding if no button is present
     input.classList.add("rounded-r-md");
   }
 
