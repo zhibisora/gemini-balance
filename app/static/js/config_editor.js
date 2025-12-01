@@ -71,24 +71,9 @@ document.addEventListener("DOMContentLoaded", function () {
       toggleProviderConfig(this.value);
     });
   }
+  */
 
-  // 检查间隔小时数输入控制
-  const checkIntervalInput = document.getElementById("CHECK_INTERVAL_HOURS");
-  if (checkIntervalInput) {
-    checkIntervalInput.addEventListener("input", function () {
-      let value = parseFloat(this.value);
-      if (isNaN(value) || value < 0) {
-        this.value = 0;
-      }
-    });
-    
-    checkIntervalInput.addEventListener("change", function () {
-      let value = parseFloat(this.value);
-      if (isNaN(value) || value < 0) {
-        this.value = 0;
-      }
-    });
-  }
+  // The original JS had a section for check interval input control, which is not needed as the HTML input type="number" handles it.
 
   // Toggle switch events
   const toggleSwitches = document.querySelectorAll(".toggle-switch");
