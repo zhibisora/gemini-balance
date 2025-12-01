@@ -52,55 +52,6 @@ async def get_setting(key: str) -> Optional[Dict[str, Any]]:
         raise
 
 
-async def update_setting(
-    key: str, value: str, description: Optional[str] = None
-) -> bool:
-    """
-    更新设置
-
-    Args:
-        key: 设置键名
-        value: 设置值
-        description: 设置描述
-
-    Returns:
-        bool: 是否更新成功
-    """
-    try:
-        # 检查设置是否存在
-        setting = await get_setting(key)
-
-        if setting:
-            # 更新设置
-            query = (
-                update(Settings)
-                .where(Settings.key == key)
-                .values(
-                    value=value,
-                    description=description if description else setting["description"],
-                    updated_at=datetime.datetime.now(datetime.timezone.utc),
-                )
-            )
-            await database.execute(query)
-            logger.info(f"Updated setting: {key}")
-            return True
-        else:
-            # 插入设置
-            query = insert(Settings).values(
-                key=key,
-                value=value,
-                description=description,
-                created_at=datetime.datetime.now(datetime.timezone.utc),
-                updated_at=datetime.datetime.now(datetime.timezone.utc),
-            )
-            await database.execute(query)
-            logger.info(f"Inserted setting: {key}")
-            return True
-    except Exception as e:
-        logger.error(f"Failed to update setting {key}: {str(e)}")
-        return False
-
-
 async def add_error_log(
     gemini_key: Optional[str] = None,
     model_name: Optional[str] = None,
