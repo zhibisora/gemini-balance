@@ -2,7 +2,7 @@ from typing import Any, Dict, Optional
 
 from app.config.config import settings
 from app.log.logger import Logger
-from app.service.client.api_client import GeminiApiClient
+from app.service.api_client import GeminiApiClient
 
 logger = Logger.setup_logger("model")
 

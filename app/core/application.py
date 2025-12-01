@@ -13,7 +13,7 @@ from app.log.logger import Logger, setup_access_logging
 from app.middleware.middleware import setup_middlewares
 from app.router.routes import setup_routers
 from app.scheduler.scheduled_tasks import start_scheduler, stop_scheduler
-from app.service.key.key_manager import get_key_manager_instance
+from app.service.key_manager import get_key_manager_instance
 from app.utils.helpers import get_current_version
 
 logger = Logger.setup_logger("application")

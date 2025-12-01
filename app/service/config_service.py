@@ -16,11 +16,11 @@ from app.database.connection import database
 from app.database.models import Settings
 from app.database.services import get_all_settings
 from app.log.logger import Logger
-from app.service.key.key_manager import (
+from app.service.key_manager import (
     get_key_manager_instance,
     reset_key_manager_instance,
 )
-from app.service.model.model_service import ModelService
+from app.service.model_service import ModelService
 
 logger = Logger.setup_logger("config_routes")
 

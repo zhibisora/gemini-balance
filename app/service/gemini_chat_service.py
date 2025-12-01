@@ -21,8 +21,8 @@ from app.exception.exceptions import RateLimitExceededError, RequestTooLargeErro
 from app.handler.rate_limit_handler import key_rate_limiter, rate_limiter
 from app.handler.response_handler import GeminiResponseHandler
 from app.log.logger import Logger
-from app.service.client.api_client import GeminiApiClient
-from app.service.key.key_manager import KeyManager
+from app.service.api_client import GeminiApiClient
+from app.service.key_manager import KeyManager
 from app.utils.helpers import (
     estimate_payload_tokens,
     get_actual_tokens_from_response,

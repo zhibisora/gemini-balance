@@ -16,8 +16,8 @@ from app.domain.gemini_models import GeminiBatchEmbedRequest, GeminiEmbedRequest
 from fastapi import HTTPException
 from app.handler.rate_limit_handler import rate_limiter
 from app.log.logger import Logger
-from app.service.client.api_client import GeminiApiClient
-from app.service.key.key_manager import KeyManager
+from app.service.api_client import GeminiApiClient
+from app.service.key_manager import KeyManager
 from app.utils.helpers import (
     estimate_payload_tokens,
     get_actual_tokens_from_response,

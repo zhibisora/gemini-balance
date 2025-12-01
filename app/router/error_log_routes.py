@@ -19,7 +19,7 @@ from pydantic import BaseModel
 
 from app.core.security import verify_auth_token
 from app.log.logger import Logger
-from app.service.error_log import error_log_service
+from app.service import error_log_service
 
 router = APIRouter(prefix="/api/logs", tags=["logs"])
 

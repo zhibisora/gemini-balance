@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, Request
-from app.service.key.key_manager import KeyManager, get_key_manager_instance
+from app.service.key_manager import KeyManager, get_key_manager_instance
 from app.core.security import verify_auth_token
 from fastapi.responses import JSONResponse
 

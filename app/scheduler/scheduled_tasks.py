@@ -3,10 +3,10 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from app.config.config import settings
 from app.domain.gemini_models import GeminiContent, GeminiRequest
 from app.log.logger import Logger
-from app.service.chat.gemini_chat_service import GeminiChatService
-from app.service.error_log.error_log_service import delete_old_error_logs
-from app.service.key.key_manager import get_key_manager_instance
-from app.service.request_log.request_log_service import delete_old_request_logs_task
+from app.service.gemini_chat_service import GeminiChatService
+from app.service.error_log_service import delete_old_error_logs
+from app.service.key_manager import get_key_manager_instance
+from app.service.request_log_service import delete_old_request_logs_task
 from app.utils.helpers import redact_key_for_logging
 
 logger = Logger.setup_logger("scheduler")

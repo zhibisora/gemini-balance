@@ -18,8 +18,8 @@ from app.router import (
     scheduler_routes,
     stats_routes,
 )
-from app.service.key.key_manager import get_key_manager_instance
-from app.service.stats.stats_service import StatsService
+from app.service.key_manager import get_key_manager_instance
+from app.service.stats_service import StatsService
 from app.utils.static_version import get_static_url
 
 logger = Logger.setup_logger("routes")

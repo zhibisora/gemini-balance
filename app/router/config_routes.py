@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 
 from app.core.security import verify_auth_token
 from app.log.logger import Logger
-from app.service.config.config_service import ConfigService
+from app.service.config_service import ConfigService
 from app.utils.helpers import redact_key_for_logging
 
 router = APIRouter(prefix="/api/config", tags=["config"])
